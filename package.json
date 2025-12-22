@@ -1,0 +1,34 @@
+{
+  "name": "machinist-shopify-theme",
+  "version": "1.0.0",
+  "description": "A dark, industrial-themed Shopify theme for precision tech e-commerce",
+  "author": "Dylan Burkey",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dylanburkey/machinist-shopify-theme.git"
+  },
+  "scripts": {
+    "dev": "shopify theme dev",
+    "push": "shopify theme push",
+    "pull": "shopify theme pull",
+    "check": "shopify theme check",
+    "package": "shopify theme package",
+    "share": "shopify theme share"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^3.50.0",
+    "@shopify/theme": "^3.50.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "shopify",
+    "theme",
+    "ecommerce",
+    "industrial",
+    "dark-theme",
+    "machinist"
+  ]
+}

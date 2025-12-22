@@ -1,0 +1,549 @@
+/* --- MACHINIST THEME: BASE STYLES --- */
+
+/* --- 1. CONFIGURATION (CSS VARIABLES) --- */
+:root {
+  /* Palette - These are overridden by theme settings */
+  --c-bg: #0a0a0a;
+  --c-panel: #141414;
+  --c-border: #333333;
+  --c-text-main: #e5e5e5;
+  --c-text-dim: #888888;
+  --c-accent: #ff4d00;
+
+  /* Typography */
+  --f-heading: 'Teko', sans-serif;
+  --f-body: 'Inter', sans-serif;
+  --f-mono: 'Source Code Pro', monospace;
+
+  /* Spacing & Layout */
+  --grid-gap: 2px;
+  --pad: 1.5rem;
+  --page-width: 140rem;
+}
+
+/* --- 2. GLOBAL RESET & BASE --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: calc(var(--font-body-scale, 1) * 62.5%);
+  height: 100%;
+}
+
+body {
+  background-color: var(--c-bg);
+  color: var(--c-text-main);
+  font-family: var(--f-body);
+  font-size: 1.6rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-for-layout {
+  flex-grow: 1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--c-accent);
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+img {
+  object-fit: cover;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--f-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  line-height: 0.95;
+  font-weight: 500;
+}
+
+/* --- 3. TYPOGRAPHY UTILITIES --- */
+.txt-heading {
+  font-family: var(--f-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  line-height: 0.9;
+}
+
+.txt-mono {
+  font-family: var(--f-mono);
+  font-size: 0.85em;
+  text-transform: uppercase;
+}
+
+.txt-body {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  color: var(--c-text-dim);
+}
+
+.txt-accent {
+  color: var(--c-accent);
+}
+
+.txt-dim {
+  color: var(--c-text-dim);
+}
+
+/* --- 4. LAYOUT UTILITIES --- */
+.container {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding-left: var(--pad);
+  padding-right: var(--pad);
+}
+
+.section-padding {
+  padding-top: calc(var(--pad) * 2);
+  padding-bottom: calc(var(--pad) * 2);
+}
+
+.grid {
+  display: grid;
+  gap: var(--grid-gap);
+  background-color: var(--c-border);
+}
+
+.grid > * {
+  background-color: var(--c-bg);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-to-content-link:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 9999;
+  padding: 1rem 2rem;
+  background: var(--c-accent);
+  color: var(--c-bg);
+  clip: auto;
+  width: auto;
+  height: auto;
+}
+
+/* --- 5. COMPONENT: BUTTONS --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  background: transparent;
+  border: 2px solid var(--c-accent);
+  color: var(--c-accent);
+  font-family: var(--f-mono);
+  font-weight: 700;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: 0s;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--c-accent);
+  color: var(--c-bg);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  background: var(--c-border);
+  border-color: var(--c-border);
+  color: var(--c-text-dim);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--secondary {
+  border-color: var(--c-border);
+  color: var(--c-text-main);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--c-accent);
+  background: transparent;
+  color: var(--c-accent);
+}
+
+/* Button Loading State */
+.btn--loading .btn__text {
+  visibility: hidden;
+}
+
+.btn--loading::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2rem;
+  height: 2rem;
+  margin-top: -1rem;
+  margin-left: -1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--c-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- 6. COMPONENT: BADGES --- */
+.badge {
+  background: var(--c-accent);
+  color: var(--c-bg);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--f-heading);
+  font-size: 1.4rem;
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  z-index: 2;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.badge--sale {
+  background: var(--c-accent);
+}
+
+.badge--soldout {
+  background: var(--c-border);
+  color: var(--c-text-dim);
+}
+
+/* --- 7. COMPONENT: FORMS --- */
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--f-mono);
+  font-size: 1.2rem;
+  color: var(--c-accent);
+  text-transform: uppercase;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  background: var(--c-panel);
+  border: 2px solid var(--c-border);
+  color: var(--c-text-main);
+  font-family: var(--f-body);
+  font-size: 1.6rem;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+}
+
+.form-input::placeholder {
+  color: var(--c-text-dim);
+}
+
+/* --- 8. QUANTITY SELECTOR --- */
+.quantity-selector {
+  display: flex;
+  border: 2px solid var(--c-border);
+  width: fit-content;
+}
+
+.quantity-selector__button {
+  padding: 0.8rem 1.2rem;
+  background: var(--c-panel);
+  border: none;
+  color: var(--c-text-main);
+  font-family: var(--f-mono);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.quantity-selector__button:hover:not(:disabled) {
+  background: var(--c-border);
+  color: var(--c-accent);
+}
+
+.quantity-selector__input {
+  width: 6rem;
+  text-align: center;
+  background: var(--c-bg);
+  border: none;
+  border-left: 2px solid var(--c-border);
+  border-right: 2px solid var(--c-border);
+  color: var(--c-text-main);
+  font-family: var(--f-mono);
+  font-size: 1.6rem;
+}
+
+/* Hide number input arrows */
+.quantity-selector__input::-webkit-outer-spin-button,
+.quantity-selector__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-selector__input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* --- 9. ACCORDION --- */
+.accordion {
+  border: 2px solid var(--c-border);
+}
+
+.accordion__header {
+  padding: 1rem;
+  background: var(--c-panel);
+  font-family: var(--f-mono);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.accordion__header::after {
+  content: '[ - ]';
+  color: var(--c-accent);
+}
+
+.accordion__header[aria-expanded="false"]::after {
+  content: '[ + ]';
+}
+
+.accordion__content {
+  display: block;
+  border-top: 2px solid var(--c-border);
+}
+
+.accordion__content[hidden] {
+  display: none;
+}
+
+/* --- 10. SPEC TABLE --- */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--f-mono);
+  font-size: 1.4rem;
+}
+
+.spec-table td {
+  border-bottom: 1px solid var(--c-border);
+  padding: 1rem;
+  vertical-align: top;
+}
+
+.spec-table tr:last-child td {
+  border-bottom: none;
+}
+
+.spec-table__key {
+  color: var(--c-text-dim);
+  width: 40%;
+  text-transform: uppercase;
+}
+
+.spec-table__value {
+  color: var(--c-text-main);
+  text-align: right;
+  font-weight: 600;
+}
+
+/* --- 11. PRICE --- */
+.price {
+  font-family: var(--f-mono);
+  font-size: 1.8rem;
+  color: var(--c-accent);
+  font-weight: 700;
+}
+
+.price--small {
+  font-size: 1.4rem;
+}
+
+.price--large {
+  font-size: 2.4rem;
+}
+
+.price--compare {
+  text-decoration: line-through;
+  color: var(--c-text-dim);
+  font-weight: 400;
+}
+
+/* --- 12. BREADCRUMBS --- */
+.breadcrumbs {
+  font-family: var(--f-mono);
+  color: var(--c-text-dim);
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.breadcrumbs__separator {
+  margin: 0 0.5rem;
+}
+
+.breadcrumbs__current {
+  color: var(--c-accent);
+  text-decoration: underline;
+}
+
+/* --- 13. PAGINATION --- */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: var(--pad);
+  font-family: var(--f-mono);
+}
+
+.pagination__item {
+  padding: 0.8rem 1.2rem;
+  border: 2px solid var(--c-border);
+  color: var(--c-text-main);
+}
+
+.pagination__item:hover {
+  border-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+.pagination__item--current {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  color: var(--c-bg);
+}
+
+/* --- 14. LOADING STATES --- */
+.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- 15. RESPONSIVE --- */
+@media (max-width: 1024px) {
+  :root {
+    --pad: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --pad: 1rem;
+  }
+
+  html {
+    font-size: 56.25%;
+  }
+}
+
+/* --- 16. FOCUS STATES --- */
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+.focus-none:focus {
+  outline: none;
+}
+
+/* --- 17. SELECTION --- */
+::selection {
+  background: var(--c-accent);
+  color: var(--c-bg);
+}
+
+/* --- 18. SCROLLBAR --- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--c-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-accent);
+}

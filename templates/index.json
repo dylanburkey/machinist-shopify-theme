@@ -1,0 +1,50 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "status_text": "// SYSTEM_STATUS: ONLINE",
+        "heading": "PRECISION<br>AUTOMATION<br>INFRASTRUCTURE",
+        "subheading": "Engineered for zero-tolerance environments. We supply high-grade CNC components and industrial robotics for the modern manufacturer.",
+        "button_label": "INITIATE_CATALOGUE()",
+        "image_label": "FIG. 01 // AUTONOMOUS_ASSEMBLY"
+      }
+    },
+    "announcement": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-1": {
+          "type": "announcement",
+          "settings": {
+            "text": "SERIES_X MOTORS RESTOCKED"
+          }
+        },
+        "announcement-2": {
+          "type": "announcement",
+          "settings": {
+            "text": "GLOBAL SHIPPING PROTOCOLS ACTIVE"
+          }
+        },
+        "announcement-3": {
+          "type": "announcement",
+          "settings": {
+            "text": "NEW FIRMWARE V2.4 AVAILABLE FOR DOWNLOAD"
+          }
+        }
+      },
+      "block_order": ["announcement-1", "announcement-2", "announcement-3"],
+      "settings": {
+        "show_announcement": true
+      }
+    },
+    "featured-collection": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "FEATURED_PRODUCTS",
+        "products_to_show": 4,
+        "show_view_all": true
+      }
+    }
+  },
+  "order": ["hero", "announcement", "featured-collection"]
+}

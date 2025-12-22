@@ -1,0 +1,98 @@
+{% comment %}
+  MACHINIST THEME: Product Card Snippet
+  
+  Accepts:
+  - product: {Object} Product Liquid object
+  - show_vendor: {Boolean} Show product vendor (optional)
+  - lazy_load: {Boolean} Lazy load images (optional, default: true)
+{% endcomment %}
+
+{%- liquid
+  assign lazy_load = lazy_load | default: true
+  assign show_vendor = show_vendor | default: settings.show_vendor
+  assign show_sku = show_sku | default: settings.show_sku
+-%}
+
+<article class="product-card">
+  {%- if product.available == false -%}
+    <span class="badge badge--soldout">SOLD_OUT</span>
+  {%- elsif product.compare_at_price > product.price -%}
+    <span class="badge badge--sale">SALE</span>
+  {%- elsif product.tags contains 'new' -%}
+    <span class="badge">NEW</span>
+  {%- endif -%}
+
+  <a href="{{ product.url }}" class="product-card__link">
+    <div class="product-card__image-container">
+      {%- if product.featured_image != blank -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 600 }}"
+          alt="{{ product.featured_image.alt | default: product.title | escape }}"
+          width="600"
+          height="400"
+          {% if lazy_load %}loading="lazy"{% endif %}
+          class="product-card__image"
+        >
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'product-card__image product-card__placeholder' }}
+      {%- endif -%}
+    </div>
+
+    <div class="product-card__meta">
+      {%- if show_sku and product.selected_or_first_available_variant.sku != blank -%}
+        <span class="product-card__sku">SKU: {{ product.selected_or_first_available_variant.sku }}</span>
+      {%- elsif show_vendor and product.vendor != blank -%}
+        <span class="product-card__vendor">{{ product.vendor }}</span>
+      {%- else -%}
+        <span></span>
+      {%- endif -%}
+      
+      <span class="product-card__stock {% if product.available == false %}product-card__stock--out{% elsif product.selected_or_first_available_variant.inventory_quantity <= 5 %}product-card__stock--low{% endif %}">
+        {%- if product.available == false -%}
+          [OUT_OF_STOCK]
+        {%- elsif product.selected_or_first_available_variant.inventory_quantity <= 5 -%}
+          [LOW_STOCK]
+        {%- else -%}
+          [IN_STOCK]
+        {%- endif -%}
+      </span>
+    </div>
+
+    <h2 class="product-card__title txt-heading">{{ product.title }}</h2>
+    
+    {%- if product.description != blank -%}
+      <p class="product-card__description txt-body">
+        {{ product.description | strip_html | truncate: 100 }}
+      </p>
+    {%- endif -%}
+  </a>
+
+  <div class="product-card__footer">
+    <div class="product-card__prices">
+      <span class="product-card__price txt-mono">
+        {{ product.price | money }}
+      </span>
+      {%- if product.compare_at_price > product.price -%}
+        <span class="product-card__price--compare txt-mono">
+          {{ product.compare_at_price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    {%- if product.available -%}
+      {%- form 'product', product, class: 'product-card__form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <add-to-cart-button>
+          <button type="submit" class="btn" {% unless product.available %}disabled{% endunless %}>
+            <span class="btn__text">ADD +</span>
+          </button>
+        </add-to-cart-button>
+      {%- endform -%}
+    {%- else -%}
+      <button class="btn" disabled>
+        <span class="btn__text">SOLD_OUT</span>
+      </button>
+    {%- endif -%}
+  </div>
+</article>

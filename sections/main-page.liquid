@@ -1,0 +1,80 @@
+{% comment %}
+  MACHINIST THEME: Main Page Section
+{% endcomment %}
+
+<section class="page" data-section-id="{{ section.id }}">
+  <div class="page__header">
+    <h1 class="page__title txt-heading">{{ page.title }}</h1>
+  </div>
+
+  <div class="page__content rte">
+    {{ page.content }}
+  </div>
+</section>
+
+<style>
+  .page {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: var(--pad);
+  }
+
+  .page__header {
+    padding-bottom: var(--pad);
+    margin-bottom: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .page__title {
+    font-size: 4rem;
+  }
+
+  .page__content {
+    font-size: 1.6rem;
+    line-height: 1.8;
+  }
+
+  .page__content h2,
+  .page__content h3,
+  .page__content h4 {
+    font-family: var(--f-heading);
+    text-transform: uppercase;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .page__content p {
+    margin-bottom: 1.5rem;
+    color: var(--c-text-dim);
+  }
+
+  .page__content a {
+    color: var(--c-accent);
+  }
+
+  .page__content ul,
+  .page__content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+
+  .page__content li {
+    margin-bottom: 0.5rem;
+    color: var(--c-text-dim);
+  }
+
+  .page__content img {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    filter: grayscale(50%);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Page",
+  "tag": "section",
+  "class": "section-page"
+}
+{% endschema %}

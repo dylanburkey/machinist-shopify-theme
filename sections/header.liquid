@@ -1,0 +1,233 @@
+{% comment %}
+  MACHINIST THEME: Header Section
+{% endcomment %}
+
+<header class="header" data-section-id="{{ section.id }}">
+  <div class="header__inner">
+    <a href="{{ routes.root_url }}" class="header__logo txt-heading">
+      {%- if section.settings.logo != blank -%}
+        <img
+          src="{{ section.settings.logo | image_url: width: 200 }}"
+          alt="{{ shop.name }}"
+          width="{{ section.settings.logo_width }}"
+          height="auto"
+          loading="lazy"
+        >
+      {%- else -%}
+        {{ shop.name }}
+      {%- endif -%}
+    </a>
+
+    <nav class="header__nav" aria-label="Main navigation">
+      <ul class="header__menu txt-mono">
+        {%- for link in section.settings.menu.links -%}
+          <li class="header__menu-item">
+            <a href="{{ link.url }}" class="header__link">
+              [{{ forloop.index | prepend: '0' | slice: -2, 2 }}] {{ link.title | upcase }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <div class="header__actions txt-mono">
+      <a href="{{ routes.search_url }}" class="header__action">
+        SEARCH_DB://
+      </a>
+      <header-cart>
+        <a href="{{ routes.cart_url }}" class="header__action header__cart">
+          CART [<span data-cart-count>{{ cart.item_count }}</span>]
+        </a>
+      </header-cart>
+    </div>
+
+    <button class="header__mobile-toggle" aria-label="Toggle menu" data-mobile-toggle>
+      <span class="header__mobile-icon"></span>
+    </button>
+  </div>
+</header>
+
+<style>
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--pad);
+    height: 8rem;
+    border-bottom: 2px solid var(--c-border);
+    background: var(--c-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: var(--page-width);
+    margin: 0 auto;
+  }
+
+  .header__logo {
+    font-size: 2.8rem;
+    font-weight: 500;
+    color: var(--c-text-main);
+  }
+
+  .header__logo:hover {
+    color: var(--c-accent);
+  }
+
+  .header__logo img {
+    height: auto;
+  }
+
+  .header__nav {
+    display: flex;
+  }
+
+  .header__menu {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .header__menu-item {
+    position: relative;
+  }
+
+  .header__link {
+    font-size: 1.4rem;
+    position: relative;
+    color: var(--c-text-main);
+  }
+
+  .header__link:hover {
+    color: var(--c-accent);
+  }
+
+  .header__link::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--c-accent);
+    transition: 0s;
+  }
+
+  .header__link:hover::after {
+    width: 100%;
+  }
+
+  .header__actions {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .header__action {
+    font-size: 1.4rem;
+    color: var(--c-text-main);
+  }
+
+  .header__action:hover {
+    color: var(--c-accent);
+  }
+
+  .header__mobile-toggle {
+    display: none;
+    width: 3rem;
+    height: 3rem;
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .header__mobile-icon,
+  .header__mobile-icon::before,
+  .header__mobile-icon::after {
+    display: block;
+    width: 2.4rem;
+    height: 2px;
+    background: var(--c-text-main);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .header__mobile-icon {
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .header__mobile-icon::before {
+    content: '';
+    top: -0.8rem;
+  }
+
+  .header__mobile-icon::after {
+    content: '';
+    bottom: -0.8rem;
+  }
+
+  @media (max-width: 1024px) {
+    .header__nav {
+      display: none;
+    }
+
+    .header__mobile-toggle {
+      display: block;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .header {
+      height: 6rem;
+    }
+
+    .header__logo {
+      font-size: 2rem;
+    }
+
+    .header__actions {
+      gap: 1rem;
+    }
+
+    .header__action:first-child {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 120,
+      "unit": "px",
+      "label": "Logo width"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "Menu"
+    }
+  ]
+}
+{% endschema %}

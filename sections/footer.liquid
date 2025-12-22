@@ -1,0 +1,239 @@
+{% comment %}
+  MACHINIST THEME: Footer Section
+{% endcomment %}
+
+<footer class="footer" data-section-id="{{ section.id }}">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="{{ routes.root_url }}" class="footer__logo txt-heading">
+          {{ shop.name }}
+        </a>
+        <p class="footer__tagline txt-body">
+          {{ section.settings.tagline }}
+        </p>
+      </div>
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'menu' -%}
+            <div class="footer__menu" {{ block.shopify_attributes }}>
+              <h3 class="footer__heading txt-mono">{{ block.settings.heading }}</h3>
+              <ul class="footer__links">
+                {%- for link in block.settings.menu.links -%}
+                  <li>
+                    <a href="{{ link.url }}" class="footer__link txt-body">
+                      {{ link.title }}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- when 'text' -%}
+            <div class="footer__text" {{ block.shopify_attributes }}>
+              <h3 class="footer__heading txt-mono">{{ block.settings.heading }}</h3>
+              <div class="footer__content txt-body">
+                {{ block.settings.text }}
+              </div>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="footer__bottom">
+      <div class="footer__copyright txt-mono">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. // ALL_RIGHTS_RESERVED
+      </div>
+
+      {%- if section.settings.show_payment_icons -%}
+        <div class="footer__payments">
+          <span class="txt-mono txt-dim">ACCEPTED_PAYMENTS:</span>
+          <ul class="footer__payment-icons">
+            {%- for type in shop.enabled_payment_types -%}
+              <li>{{ type | payment_type_svg_tag: class: 'footer__payment-icon' }}</li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--c-panel);
+    border-top: 2px solid var(--c-border);
+    padding: calc(var(--pad) * 3) var(--pad);
+  }
+
+  .footer__inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    gap: calc(var(--pad) * 2);
+    padding-bottom: calc(var(--pad) * 2);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .footer__brand {
+    max-width: 30rem;
+  }
+
+  .footer__logo {
+    font-size: 2.4rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .footer__tagline {
+    font-size: 1.4rem;
+  }
+
+  .footer__heading {
+    color: var(--c-accent);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .footer__link {
+    font-size: 1.4rem;
+    color: var(--c-text-dim);
+  }
+
+  .footer__link:hover {
+    color: var(--c-accent);
+  }
+
+  .footer__content {
+    font-size: 1.4rem;
+  }
+
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: calc(var(--pad) * 2);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer__copyright {
+    font-size: 1.2rem;
+    color: var(--c-text-dim);
+  }
+
+  .footer__payments {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer__payment-icons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .footer__payment-icon {
+    height: 2.4rem;
+    width: auto;
+  }
+
+  @media (max-width: 1024px) {
+    .footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .footer__brand {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .footer__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .footer__brand {
+      grid-column: span 1;
+    }
+
+    .footer__bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .footer__payments {
+      flex-direction: column;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Precision automation infrastructure for the modern manufacturer."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment icons",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "NAVIGATION"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "ABOUT"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Industrial-grade components for precision manufacturing.</p>"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4
+}
+{% endschema %}

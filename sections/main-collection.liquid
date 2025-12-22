@@ -1,0 +1,245 @@
+{% comment %}
+  MACHINIST THEME: Main Collection Section
+{% endcomment %}
+
+<div class="collection" data-section-id="{{ section.id }}">
+  <div class="collection__header">
+    <h1 class="collection__title txt-heading">{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="collection__description txt-body">
+        {{ collection.description }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="collection__layout">
+    {%- if section.settings.show_filters -%}
+      <aside class="collection__filters filters">
+        <div class="filters__header txt-heading">FILTERS</div>
+
+        {%- for filter in collection.filters -%}
+          <div class="filter-group">
+            <span class="filter-title txt-mono">{{ filter.label | upcase }}</span>
+            {%- case filter.type -%}
+              {%- when 'list' -%}
+                {%- for value in filter.values -%}
+                  <label class="filter-option">
+                    <input
+                      type="checkbox"
+                      name="{{ value.param_name }}"
+                      value="{{ value.value }}"
+                      {% if value.active %}checked{% endif %}
+                      class="visually-hidden"
+                    >
+                    <span class="checkbox-mock {% if value.active %}checkbox-mock--active{% endif %}"></span>
+                    {{ value.label }} ({{ value.count }})
+                  </label>
+                {%- endfor -%}
+              {%- when 'price_range' -%}
+                <div class="filter-price">
+                  <input
+                    type="number"
+                    class="form-input"
+                    name="{{ filter.min_value.param_name }}"
+                    value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                    placeholder="Min"
+                  >
+                  <span>—</span>
+                  <input
+                    type="number"
+                    class="form-input"
+                    name="{{ filter.max_value.param_name }}"
+                    value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                    placeholder="Max"
+                  >
+                </div>
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </aside>
+    {%- endif -%}
+
+    <main class="collection__products">
+      {%- if collection.products.size > 0 -%}
+        <div class="product-grid">
+          {%- paginate collection.products by section.settings.products_per_page -%}
+            {%- for product in collection.products -%}
+              {% render 'product-card', product: product %}
+            {%- endfor -%}
+          {%- endpaginate -%}
+        </div>
+
+        {%- paginate collection.products by section.settings.products_per_page -%}
+          {%- if paginate.pages > 1 -%}
+            <nav class="pagination" aria-label="Pagination">
+              {%- if paginate.previous -%}
+                <a href="{{ paginate.previous.url }}" class="pagination__item">&laquo; PREV</a>
+              {%- endif -%}
+
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a href="{{ part.url }}" class="pagination__item">{{ part.title }}</a>
+                {%- elsif part.title == paginate.current_page -%}
+                  <span class="pagination__item pagination__item--current">{{ part.title }}</span>
+                {%- else -%}
+                  <span class="pagination__item">{{ part.title }}</span>
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- if paginate.next -%}
+                <a href="{{ paginate.next.url }}" class="pagination__item">NEXT &raquo;</a>
+              {%- endif -%}
+            </nav>
+          {%- endif -%}
+        {%- endpaginate -%}
+      {%- else -%}
+        <div class="collection__empty">
+          <p class="txt-mono">NO_PRODUCTS_FOUND</p>
+          <p class="txt-body">{{ 'sections.collection_template.empty' | t }}</p>
+        </div>
+      {%- endif -%}
+    </main>
+  </div>
+</div>
+
+<style>
+  .collection__header {
+    padding: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .collection__title {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .collection__layout {
+    display: grid;
+    grid-template-columns: 28rem 1fr;
+    min-height: 100vh;
+  }
+
+  .collection__filters {
+    border-right: 2px solid var(--c-border);
+    padding: var(--pad);
+    background: var(--c-panel);
+  }
+
+  .filters__header {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .filter-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .filter-title {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--c-accent);
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--c-text-dim);
+  }
+
+  .filter-option:hover {
+    color: var(--c-text-main);
+  }
+
+  .checkbox-mock {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 2px solid var(--c-border);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .checkbox-mock--active {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+  }
+
+  .filter-option:hover .checkbox-mock {
+    border-color: var(--c-accent);
+  }
+
+  .filter-price {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .filter-price .form-input {
+    width: 8rem;
+    font-size: 1.4rem;
+    padding: 0.8rem;
+  }
+
+  .collection__products {
+    background: var(--c-bg);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr));
+    gap: var(--grid-gap);
+    background-color: var(--c-border);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .collection__empty {
+    padding: calc(var(--pad) * 4);
+    text-align: center;
+  }
+
+  @media (max-width: 1024px) {
+    .collection__layout {
+      grid-template-columns: 1fr;
+    }
+
+    .collection__filters {
+      border-right: none;
+      border-bottom: 2px solid var(--c-border);
+    }
+
+    .product-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection products",
+  "tag": "section",
+  "class": "section-collection",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show filters",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 24,
+      "step": 4,
+      "default": 12,
+      "label": "Products per page"
+    }
+  ]
+}
+{% endschema %}

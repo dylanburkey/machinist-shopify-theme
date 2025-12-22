@@ -1,0 +1,116 @@
+{% comment %}
+  MACHINIST THEME: Announcement Bar / Ticker Strip
+{% endcomment %}
+
+{%- if section.settings.show_announcement -%}
+  <div class="announcement-bar" data-section-id="{{ section.id }}">
+    <div class="announcement-bar__content">
+      <div class="announcement-bar__text txt-mono">
+        {%- for block in section.blocks -%}
+          <span class="announcement-bar__item" {{ block.shopify_attributes }}>
+            >>> {{ block.settings.text }}
+          </span>
+        {%- endfor -%}
+        {%- for block in section.blocks -%}
+          <span class="announcement-bar__item" aria-hidden="true">
+            >>> {{ block.settings.text }}
+          </span>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}
+
+<style>
+  .announcement-bar {
+    background: var(--c-accent);
+    color: var(--c-bg);
+    padding: 0.8rem;
+    font-weight: 700;
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .announcement-bar__content {
+    display: flex;
+    width: max-content;
+    animation: ticker 30s linear infinite;
+  }
+
+  .announcement-bar__text {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .announcement-bar__item {
+    font-size: 1.4rem;
+  }
+
+  @keyframes ticker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .announcement-bar:hover .announcement-bar__content {
+    animation-play-state: paused;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "class": "section-announcement",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement bar",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "ALERT: NEW PRODUCTS AVAILABLE"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Announcement bar",
+      "blocks": [
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "SERIES_X MOTORS RESTOCKED"
+          }
+        },
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "GLOBAL SHIPPING PROTOCOLS ACTIVE"
+          }
+        },
+        {
+          "type": "announcement",
+          "settings": {
+            "text": "NEW FIRMWARE V2.4 AVAILABLE FOR DOWNLOAD"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

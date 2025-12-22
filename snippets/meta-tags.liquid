@@ -1,0 +1,51 @@
+{% comment %}
+  MACHINIST THEME: Meta Tags Snippet
+{% endcomment %}
+
+{% if request.page_type == 'index' %}
+  {% assign og_title = shop.name %}
+  {% assign og_description = shop.description %}
+{% elsif request.page_type == 'product' %}
+  {% assign og_title = product.title | append: ' | ' | append: shop.name %}
+  {% assign og_description = product.description | strip_html | truncate: 160 %}
+{% elsif request.page_type == 'collection' %}
+  {% assign og_title = collection.title | append: ' | ' | append: shop.name %}
+  {% assign og_description = collection.description | strip_html | truncate: 160 %}
+{% elsif request.page_type == 'blog' %}
+  {% assign og_title = blog.title | append: ' | ' | append: shop.name %}
+  {% assign og_description = shop.description %}
+{% elsif request.page_type == 'article' %}
+  {% assign og_title = article.title | append: ' | ' | append: shop.name %}
+  {% assign og_description = article.excerpt_or_content | strip_html | truncate: 160 %}
+{% elsif request.page_type == 'page' %}
+  {% assign og_title = page.title | append: ' | ' | append: shop.name %}
+  {% assign og_description = page.content | strip_html | truncate: 160 %}
+{% else %}
+  {% assign og_title = page_title | append: ' | ' | append: shop.name %}
+  {% assign og_description = shop.description %}
+{% endif %}
+
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ og_title }}">
+<meta property="og:type" content="website">
+<meta property="og:description" content="{{ og_description | default: shop.description }}">
+
+{% if request.page_type == 'product' %}
+  <meta property="og:type" content="product">
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency }}">
+  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  {% if product.featured_image %}
+    <meta property="og:image" content="https:{{ product.featured_image | image_url: width: 1200 }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+  {% endif %}
+{% elsif request.page_type == 'collection' and collection.image %}
+  <meta property="og:image" content="https:{{ collection.image | image_url: width: 1200 }}">
+{% elsif request.page_type == 'article' and article.image %}
+  <meta property="og:image" content="https:{{ article.image | image_url: width: 1200 }}">
+{% endif %}
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_description | default: shop.description }}">

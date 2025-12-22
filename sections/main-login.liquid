@@ -1,0 +1,116 @@
+{% comment %}
+  MACHINIST THEME: Customer Login Section
+{% endcomment %}
+
+<section class="login" data-section-id="{{ section.id }}">
+  <div class="login__container">
+    <div class="login__form-wrapper">
+      <h1 class="login__title txt-heading">{{ 'customer.login_page.title' | t }}</h1>
+      
+      {%- form 'customer_login', class: 'login__form' -%}
+        {%- if form.errors -%}
+          <div class="form-error txt-mono txt-accent">
+            {{ form.errors | default_errors }}
+          </div>
+        {%- endif -%}
+
+        <div class="form-field">
+          <label for="CustomerEmail" class="form-label">{{ 'customer.login_page.email' | t }}</label>
+          <input
+            type="email"
+            name="customer[email]"
+            id="CustomerEmail"
+            class="form-input"
+            autocomplete="email"
+            autocapitalize="off"
+            autocorrect="off"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="CustomerPassword" class="form-label">{{ 'customer.login_page.password' | t }}</label>
+          <input
+            type="password"
+            name="customer[password]"
+            id="CustomerPassword"
+            class="form-input"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn btn--full">
+          <span class="btn__text">{{ 'customer.login_page.sign_in' | t }}</span>
+        </button>
+
+        <div class="login__links txt-mono">
+          <a href="{{ routes.account_recover_url }}">{{ 'customer.login_page.forgot_password' | t }}</a>
+          <a href="{{ routes.account_register_url }}">{{ 'customer.login_page.create_account' | t }}</a>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .login {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--pad);
+  }
+
+  .login__container {
+    width: 100%;
+    max-width: 45rem;
+  }
+
+  .login__form-wrapper {
+    background: var(--c-panel);
+    border: 2px solid var(--c-border);
+    padding: calc(var(--pad) * 2);
+  }
+
+  .login__title {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .login__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-error {
+    padding: 1rem;
+    border: 2px solid var(--c-accent);
+    margin-bottom: 1rem;
+  }
+
+  .login__links {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+  }
+
+  .login__links a {
+    color: var(--c-text-dim);
+  }
+
+  .login__links a:hover {
+    color: var(--c-accent);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Customer login",
+  "tag": "section",
+  "class": "section-login"
+}
+{% endschema %}

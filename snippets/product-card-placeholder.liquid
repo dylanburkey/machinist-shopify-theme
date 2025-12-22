@@ -1,0 +1,28 @@
+{% comment %}
+  MACHINIST THEME: Product Card Placeholder Snippet
+  Used for empty collections or loading states
+{% endcomment %}
+
+<article class="product-card product-card--placeholder">
+  <div class="product-card__image-container">
+    {{ 'product-1' | placeholder_svg_tag: 'product-card__image product-card__placeholder' }}
+  </div>
+
+  <div class="product-card__meta">
+    <span class="product-card__sku">SKU: XXX-X</span>
+    <span class="product-card__stock">[IN_STOCK]</span>
+  </div>
+
+  <h2 class="product-card__title txt-heading">{{ 'onboarding.product_title' | t }}</h2>
+  
+  <p class="product-card__description txt-body">
+    Product description placeholder text goes here.
+  </p>
+
+  <div class="product-card__footer">
+    <span class="product-card__price txt-mono">$0.00</span>
+    <button class="btn" disabled>
+      <span class="btn__text">ADD +</span>
+    </button>
+  </div>
+</article>

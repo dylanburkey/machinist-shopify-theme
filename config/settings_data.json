@@ -1,0 +1,37 @@
+{
+  "current": {
+    "color_background": "#0a0a0a",
+    "color_panel": "#141414",
+    "color_border": "#333333",
+    "color_text": "#e5e5e5",
+    "color_text_dim": "#888888",
+    "color_accent": "#ff4d00",
+    "type_header_font": "teko_n5",
+    "heading_scale": 100,
+    "type_body_font": "inter_n4",
+    "body_scale": 100,
+    "page_width": 1400,
+    "spacing_padding": 1.5,
+    "grid_gap": 2,
+    "media_padding": 0,
+    "product_cards_grayscale": true,
+    "show_vendor": false,
+    "show_sku": true,
+    "cart_type": "drawer",
+    "show_cart_note": true,
+    "predictive_search_enabled": true,
+    "search_show_products": true,
+    "search_show_collections": true,
+    "sections": {
+      "header": {
+        "type": "header",
+        "settings": {}
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {}
+      }
+    },
+    "content_for_index": []
+  }
+}

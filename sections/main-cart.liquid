@@ -1,0 +1,299 @@
+{% comment %}
+  MACHINIST THEME: Main Cart Section
+{% endcomment %}
+
+<section class="cart" data-section-id="{{ section.id }}">
+  <div class="cart__header">
+    <h1 class="cart__title txt-heading">{{ 'sections.cart.title' | t }}</h1>
+  </div>
+
+  {%- if cart.item_count > 0 -%}
+    <div class="cart__content">
+      <div class="cart__items">
+        <table class="cart__table">
+          <thead class="cart__thead txt-mono">
+            <tr>
+              <th colspan="2">PRODUCT</th>
+              <th>QUANTITY</th>
+              <th>TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for item in cart.items -%}
+              <tr class="cart__item" data-cart-item>
+                <td class="cart__item-image">
+                  {%- if item.image -%}
+                    <img
+                      src="{{ item.image | image_url: width: 150 }}"
+                      alt="{{ item.title | escape }}"
+                      width="150"
+                      height="150"
+                      loading="lazy"
+                    >
+                  {%- endif -%}
+                </td>
+                <td class="cart__item-details">
+                  <a href="{{ item.url }}" class="cart__item-title txt-heading">
+                    {{ item.product.title }}
+                  </a>
+                  {%- if item.product.has_only_default_variant == false -%}
+                    <div class="cart__item-variant txt-mono txt-dim">
+                      {{ item.variant.title }}
+                    </div>
+                  {%- endif -%}
+                  <div class="cart__item-price txt-mono">
+                    {{ item.original_price | money }}
+                  </div>
+                  <button
+                    type="button"
+                    class="cart__remove txt-mono txt-accent"
+                    data-cart-remove="{{ item.key }}"
+                  >
+                    [REMOVE]
+                  </button>
+                </td>
+                <td class="cart__item-quantity">
+                  <quantity-input class="quantity-selector">
+                    <button type="button" class="quantity-selector__button" name="minus">-</button>
+                    <input
+                      type="number"
+                      class="quantity-selector__input"
+                      name="updates[]"
+                      value="{{ item.quantity }}"
+                      min="0"
+                      data-cart-quantity="{{ item.key }}"
+                    >
+                    <button type="button" class="quantity-selector__button" name="plus">+</button>
+                  </quantity-input>
+                </td>
+                <td class="cart__item-total txt-mono">
+                  {{ item.final_line_price | money }}
+                </td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cart__summary">
+        <div class="cart__summary-row">
+          <span class="txt-mono">{{ 'sections.cart.subtotal' | t }}</span>
+          <span class="cart__subtotal txt-mono">{{ cart.total_price | money }}</span>
+        </div>
+
+        <p class="cart__note txt-body txt-dim">
+          {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+        </p>
+
+        {%- if settings.show_cart_note -%}
+          <div class="cart__order-note">
+            <label for="cart-note" class="form-label">{{ 'sections.cart.note' | t }}</label>
+            <textarea
+              id="cart-note"
+              class="form-input"
+              name="note"
+              rows="3"
+            >{{ cart.note }}</textarea>
+          </div>
+        {%- endif -%}
+
+        <a href="{{ routes.checkout_url }}" class="btn btn--full cart__checkout">
+          <span class="btn__text">{{ 'sections.cart.checkout' | t }}</span>
+        </a>
+
+        <a href="{{ routes.all_products_collection_url }}" class="cart__continue txt-mono">
+          {{ 'general.continue_shopping' | t }}
+        </a>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="cart__empty">
+      <p class="txt-mono">{{ 'sections.cart.empty' | t }}</p>
+      <a href="{{ routes.all_products_collection_url }}" class="btn">
+        <span class="btn__text">{{ 'general.continue_shopping' | t }}</span>
+      </a>
+    </div>
+  {%- endif -%}
+</section>
+
+<style>
+  .cart {
+    min-height: 60vh;
+  }
+
+  .cart__header {
+    padding: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .cart__title {
+    font-size: 4rem;
+  }
+
+  .cart__content {
+    display: grid;
+    grid-template-columns: 1fr 35rem;
+    gap: var(--grid-gap);
+    background: var(--c-border);
+  }
+
+  .cart__items {
+    background: var(--c-bg);
+    padding: var(--pad);
+  }
+
+  .cart__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .cart__thead th {
+    text-align: left;
+    padding: 1rem 0;
+    border-bottom: 2px solid var(--c-border);
+    font-size: 1.2rem;
+    color: var(--c-accent);
+  }
+
+  .cart__item td {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: top;
+  }
+
+  .cart__item-image {
+    width: 15rem;
+  }
+
+  .cart__item-image img {
+    filter: grayscale(100%);
+  }
+
+  .cart__item:hover .cart__item-image img {
+    filter: grayscale(0%);
+  }
+
+  .cart__item-title {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .cart__item-variant {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cart__item-price {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .cart__remove {
+    font-size: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .cart__remove:hover {
+    text-decoration: underline;
+  }
+
+  .cart__item-quantity {
+    width: 15rem;
+  }
+
+  .cart__item-total {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .cart__summary {
+    background: var(--c-panel);
+    padding: var(--pad);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .cart__summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.6rem;
+  }
+
+  .cart__subtotal {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--c-accent);
+  }
+
+  .cart__note {
+    font-size: 1.4rem;
+  }
+
+  .cart__order-note {
+    margin-top: 1rem;
+  }
+
+  .cart__order-note textarea {
+    resize: vertical;
+  }
+
+  .cart__checkout {
+    margin-top: 1rem;
+    font-size: 1.6rem;
+    padding: 1.5rem;
+  }
+
+  .cart__continue {
+    text-align: center;
+    font-size: 1.4rem;
+    color: var(--c-text-dim);
+  }
+
+  .cart__continue:hover {
+    color: var(--c-accent);
+  }
+
+  .cart__empty {
+    padding: calc(var(--pad) * 4);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .cart__content {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .cart__item-image {
+      width: 8rem;
+    }
+
+    .cart__thead th:nth-child(3),
+    .cart__thead th:nth-child(4) {
+      display: none;
+    }
+
+    .cart__item-quantity,
+    .cart__item-total {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Cart",
+  "tag": "section",
+  "class": "section-cart"
+}
+{% endschema %}

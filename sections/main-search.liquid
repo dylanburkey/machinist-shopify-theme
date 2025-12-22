@@ -1,0 +1,154 @@
+{% comment %}
+  MACHINIST THEME: Main Search Section
+{% endcomment %}
+
+<section class="search-page" data-section-id="{{ section.id }}">
+  <div class="search-page__header">
+    <h1 class="search-page__title txt-heading">{{ 'templates.search.title' | t }}</h1>
+    <form action="{{ routes.search_url }}" method="get" class="search-page__form">
+      <input type="hidden" name="type" value="product">
+      <div class="search-page__input-wrapper">
+        <input
+          type="search"
+          name="q"
+          value="{{ search.terms | escape }}"
+          class="form-input search-page__input"
+          placeholder="SEARCH_DB://"
+          aria-label="Search"
+        >
+        <button type="submit" class="btn search-page__submit">
+          <span class="btn__text">EXECUTE</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {%- if search.performed -%}
+    <div class="search-page__results">
+      {%- if search.results_count > 0 -%}
+        <p class="search-page__count txt-mono">
+          {{ 'templates.search.results_with_count' | t: count: search.results_count }}
+          {{ 'templates.search.search_for' | t: terms: search.terms }}
+        </p>
+
+        <div class="product-grid">
+          {%- for item in search.results -%}
+            {%- case item.object_type -%}
+              {%- when 'product' -%}
+                {% render 'product-card', product: item %}
+              {%- when 'article' -%}
+                <article class="article-card">
+                  <div class="article-card__content">
+                    <span class="article-card__date txt-mono">{{ item.published_at | date: '%Y-%m-%d' }}</span>
+                    <h2 class="article-card__title txt-heading">
+                      <a href="{{ item.url }}">{{ item.title }}</a>
+                    </h2>
+                    <p class="article-card__excerpt txt-body">{{ item.excerpt | strip_html | truncate: 150 }}</p>
+                  </div>
+                </article>
+              {%- when 'page' -%}
+                <article class="article-card">
+                  <div class="article-card__content">
+                    <span class="article-card__date txt-mono">PAGE</span>
+                    <h2 class="article-card__title txt-heading">
+                      <a href="{{ item.url }}">{{ item.title }}</a>
+                    </h2>
+                    <p class="article-card__excerpt txt-body">{{ item.content | strip_html | truncate: 150 }}</p>
+                  </div>
+                </article>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if search.results.size < search.results_count -%}
+          {% paginate search.results by 12 %}
+            <nav class="pagination">
+              {%- if paginate.previous -%}
+                <a href="{{ paginate.previous.url }}" class="pagination__item">&laquo; PREV</a>
+              {%- endif -%}
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a href="{{ part.url }}" class="pagination__item">{{ part.title }}</a>
+                {%- elsif part.title == paginate.current_page -%}
+                  <span class="pagination__item pagination__item--current">{{ part.title }}</span>
+                {%- else -%}
+                  <span class="pagination__item">{{ part.title }}</span>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if paginate.next -%}
+                <a href="{{ paginate.next.url }}" class="pagination__item">NEXT &raquo;</a>
+              {%- endif -%}
+            </nav>
+          {% endpaginate %}
+        {%- endif -%}
+      {%- else -%}
+        <div class="search-page__empty">
+          <p class="txt-mono">NO_RESULTS_FOUND</p>
+          <p class="txt-body">{{ 'templates.search.no_results' | t: terms: search.terms }}</p>
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</section>
+
+<style>
+  .search-page__header {
+    padding: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .search-page__title {
+    font-size: 4rem;
+    margin-bottom: 2rem;
+  }
+
+  .search-page__form {
+    max-width: 60rem;
+  }
+
+  .search-page__input-wrapper {
+    display: flex;
+    gap: var(--grid-gap);
+  }
+
+  .search-page__input {
+    flex: 1;
+  }
+
+  .search-page__count {
+    padding: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+    font-size: 1.4rem;
+    color: var(--c-accent);
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr));
+    gap: var(--grid-gap);
+    background-color: var(--c-border);
+  }
+
+  .search-page__empty {
+    padding: calc(var(--pad) * 4);
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    .search-page__input-wrapper {
+      flex-direction: column;
+    }
+
+    .product-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Search results",
+  "tag": "section",
+  "class": "section-search"
+}
+{% endschema %}

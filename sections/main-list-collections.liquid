@@ -1,0 +1,111 @@
+{% comment %}
+  MACHINIST THEME: List Collections Section
+{% endcomment %}
+
+<section class="collections-list" data-section-id="{{ section.id }}">
+  <div class="collections-list__header">
+    <h1 class="collections-list__title txt-heading">COLLECTIONS</h1>
+  </div>
+
+  <div class="collections-list__grid">
+    {%- for collection in collections -%}
+      {%- if collection.products.size > 0 -%}
+        <a href="{{ collection.url }}" class="collection-card">
+          {%- if collection.image -%}
+            <img
+              src="{{ collection.image | image_url: width: 800 }}"
+              alt="{{ collection.title | escape }}"
+              class="collection-card__image"
+              width="800"
+              height="400"
+              loading="lazy"
+            >
+          {%- else -%}
+            {{ 'collection-1' | placeholder_svg_tag: 'collection-card__image' }}
+          {%- endif -%}
+          <div class="collection-card__content">
+            <h2 class="collection-card__title txt-heading">{{ collection.title }}</h2>
+            <span class="collection-card__count txt-mono">[ {{ collection.products_count }} ITEMS ]</span>
+          </div>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+<style>
+  .collections-list__header {
+    padding: var(--pad);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .collections-list__title {
+    font-size: 4rem;
+  }
+
+  .collections-list__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40rem, 1fr));
+    gap: var(--grid-gap);
+    background-color: var(--c-border);
+  }
+
+  .collection-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    height: 40rem;
+    background: var(--c-bg);
+  }
+
+  .collection-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%) brightness(60%);
+    transition: transform 0.3s ease;
+  }
+
+  .collection-card:hover .collection-card__image {
+    filter: grayscale(0%) brightness(80%);
+    transform: scale(1.02);
+  }
+
+  .collection-card__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--pad);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
+  }
+
+  .collection-card__title {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .collection-card__count {
+    color: var(--c-accent);
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    .collections-list__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .collection-card {
+      height: 30rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "tag": "section",
+  "class": "section-list-collections"
+}
+{% endschema %}

@@ -1,0 +1,11 @@
+{
+  "totalProducts": 50,
+  "totalCollections": 24,
+  "categories": 4,
+  "productsByCategory": {
+    "Manufacturing Equipment": 12,
+    "Industrial Equipment": 14,
+    "Professional Tools": 13,
+    "Safety Equipment": 11
+  }
+}

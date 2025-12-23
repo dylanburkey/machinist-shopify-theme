@@ -1,0 +1,19 @@
+{
+  "name": "machinist-catalog-generator",
+  "version": "1.0.0",
+  "description": "Product catalog generator for Machinist Shopify theme demo store",
+  "type": "module",
+  "main": "generate-products.js",
+  "scripts": {
+    "generate": "node generate-products.js",
+    "generate:content": "node generate-content.js"
+  },
+  "keywords": [
+    "shopify",
+    "product-catalog",
+    "demo-data",
+    "industrial"
+  ],
+  "author": "",
+  "license": "MIT"
+}

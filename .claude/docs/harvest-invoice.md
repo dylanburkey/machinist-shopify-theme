@@ -15,6 +15,245 @@
 
 ---
 
+## AI Tools & Development Workflows
+
+This project implemented a comprehensive AI-assisted development system using multiple tools, scripts, and automated workflows.
+
+### Development Tools & Platforms
+
+**Primary AI Development Tool:**
+- **Claude Code** (claude.ai/code): AI-powered development assistant
+- **Model:** Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
+- **Environment:** VSCode extension with native integration
+- **Capabilities:** Code generation, refactoring, testing, documentation, git operations
+
+**Supporting Development Tools:**
+- **Node.js 18+**: JavaScript runtime for automation scripts
+- **PNPM**: Fast package manager for dependency management
+- **Shopify CLI**: Theme development and deployment
+- **Git/GitHub**: Version control and collaboration
+
+### AI Agent System Architecture
+
+**Agent-Based Development Framework:**
+- **Total Agents Configured:** 6 specialized AI agents
+- **Configuration System:** YAML-based agent definitions
+- **Communication Protocol:** Event-driven agent coordination
+- **Purpose:** Automated task execution with specialized capabilities
+
+**Specialized Agents:**
+
+1. **init (Initialization Agent)**
+   - Responsibilities: Environment setup, dependency installation, configuration
+   - Tools: File operations, package management, git setup
+   - Deliverable: `.claude/agents/init-agent.md`
+
+2. **dev (Development Agent)**
+   - Responsibilities: Code implementation, Shopify sections, Liquid templates
+   - Tools: Code editing, testing, Shopify API
+   - Use Cases: Feature development, component creation
+
+3. **test (Testing Agent)**
+   - Responsibilities: Property-based testing, test execution, quality assurance
+   - Tools: Vitest, fast-check, test automation
+   - Framework: 21 property tests configured
+
+4. **docs (Documentation Agent)**
+   - Responsibilities: Technical documentation, README files, API docs
+   - Tools: Markdown generation, documentation validation
+   - Output: User and developer documentation
+
+5. **review (Code Review Agent)**
+   - Responsibilities: Code quality, security, best practices
+   - Tools: Static analysis, linting, validation
+   - Standards: Professional code review protocols
+
+6. **shopify (Shopify Operations Agent)**
+   - Responsibilities: Theme deployment, Shopify API integration
+   - Tools: Shopify CLI, theme management
+   - Operations: Push, pull, preview link generation
+
+### Property-Based Testing Framework
+
+**Testing Methodology:**
+- **Framework:** Vitest + fast-check for property-based testing
+- **Total Property Tests:** 21 tests defined
+- **Test Runs Per Property:** 100 iterations
+- **Shrinking:** Enabled for failure minimization
+- **Coverage:** Code, metafield, bulk operations, accessibility
+
+**Testing Agent System:**
+- **generator Agent:** Test data generation with realistic scenarios
+- **property Agent:** Property definition and validation logic
+- **shrinker Agent:** Minimal failing case identification
+- **coverage Agent:** Test coverage tracking and reporting
+- **integration Agent:** System-wide integration testing
+
+**Test Categories:**
+- Product catalog completeness (Critical)
+- Metafield data population (Critical)
+- Metafield validation system (High)
+- Bulk operations functionality (High)
+- Cost calculator accuracy (High)
+- Specification search (High)
+- Marketing section layouts (High)
+- Accessibility & performance (Critical)
+
+### Project Management Scripts
+
+**Automation Scripts Created:**
+
+1. **Product Catalog Generator** (`tools/catalog-generator/generate-products.js`)
+   - Purpose: Automated product and collection generation
+   - Input: Product templates, category definitions
+   - Output: Shopify-compatible CSV files
+   - Features: SKU generation, barcode creation, price calculation
+   - Lines of Code: 285 lines
+
+2. **Category Management Script** (`tools/catalog-generator/categories.js`)
+   - Purpose: Hierarchical category taxonomy management
+   - Structure: 4 main categories, 20 subcategories
+   - Functions: Category validation, handle generation, hierarchy traversal
+   - Lines of Code: 184 lines
+
+3. **Content Generation System** (`tools/catalog-generator/section-content.js`)
+   - Purpose: Reusable content library for theme sections
+   - Content Types: Heroes, features, FAQs, testimonials, trust badges
+   - Use Case: Rapid section population without manual content writing
+   - Lines of Code: 326 lines
+
+**NPM Scripts Configured:**
+```json
+{
+  "scripts": {
+    "generate": "node generate-products.js",
+    "generate:content": "node section-content.js"
+  }
+}
+```
+
+### AI Workflow Configuration Files
+
+**Core Configuration Files:**
+
+1. **`.claude/config.yml`** (58 lines)
+   - Project metadata and settings
+   - Agent system enablement
+   - Task management configuration
+   - Property testing setup
+   - Development commands reference
+
+2. **`.claude/agents.yml`** (146 lines)
+   - Agent capability definitions
+   - Tool-to-agent mappings
+   - Hierarchical coordination rules
+   - Communication protocols
+   - Shared context definitions
+
+3. **`.claude/tasks.yml`** (188 lines)
+   - Task categorization (6 categories)
+   - Workflow patterns (3 workflows)
+   - Execution rules and timeouts
+   - Checkpoint definitions
+   - Dependency mapping
+
+4. **`.claude/tools.yml`** (303 lines)
+   - 30+ tool definitions
+   - 8 tool categories
+   - Agent-tool assignments
+   - Usage patterns and examples
+   - Permission configurations
+
+5. **`.claude/property-tests.yml`** (378 lines)
+   - 21 property test definitions
+   - Requirement mappings
+   - Invariant specifications
+   - Execution configuration
+   - Reporting and CI/CD integration
+
+6. **`.claude/property-test-agents.yml`** (312 lines)
+   - Testing agent definitions
+   - Generator patterns and templates
+   - Test lifecycle workflow (6 phases)
+   - Reporting templates
+   - Integration specifications
+
+### Workflow Automation Patterns
+
+**Feature Development Workflow (5 steps):**
+1. Requirements analysis and planning
+2. Code implementation with testing
+3. Property test creation
+4. Code review and validation
+5. Documentation and deployment
+
+**Shopify Section Creation Workflow (5 steps):**
+1. Section schema design
+2. Liquid template implementation
+3. JavaScript component development
+4. CSS styling and theming
+5. Theme editor integration
+
+**Property Test Creation Workflow (3 steps):**
+1. Property identification and definition
+2. Generator implementation
+3. Test execution and validation
+
+### Development Methodology
+
+**AI-Assisted Development Approach:**
+- **Code Generation:** Claude Code generates boilerplate, templates, and implementation
+- **Automated Testing:** Property-based tests run automatically with 100 iterations
+- **Documentation:** Auto-generated from code comments and structure
+- **Git Operations:** Automated commits with professional messages (no AI references)
+- **Quality Assurance:** Multi-agent review system before deployment
+
+**Benefits of Agent-Based System:**
+- Specialized expertise for different tasks
+- Parallel execution of independent workflows
+- Consistent quality across all deliverables
+- Reduced manual repetitive tasks
+- Built-in testing and validation at every step
+
+### Scripts for Project Management
+
+**Task Tracking & Planning:**
+- **Implementation Plan:** `.claude/tasks/task-requirments.md` (255 lines)
+  - 14 main task groups
+  - 50+ subtasks with requirements
+  - Property test mappings
+  - Checkpoint definitions
+
+**Work Documentation:**
+- **Work Summary:** `.claude/docs/work-summary.md` (543 lines)
+  - Phase-by-phase breakdown
+  - Deliverables checklist
+  - Commit history tracking
+  - Time and effort documentation
+
+- **Harvest Invoice:** `.claude/docs/harvest-invoice.md` (this document)
+  - Service category organization
+  - Task-level time tracking
+  - Billable hours calculation
+  - CSV import format for Harvest
+
+### Quality Assurance Automation
+
+**Automated Quality Checks:**
+- **Git Commit Standards:** Professional messages without AI tool references
+- **Code Validation:** Automated linting and formatting
+- **Test Execution:** Property tests run on every build
+- **Documentation Validation:** Markdown linting and link checking
+- **CSV Validation:** Shopify import format verification
+
+**Version Control Automation:**
+- Automated commit message generation
+- Branch management and merging
+- GitHub push operations
+- Repository synchronization
+
+---
+
 ## Time Entries by Service Category
 
 ### Development - Backend

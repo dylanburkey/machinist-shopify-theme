@@ -1,0 +1,303 @@
+# Tools Configuration
+# Defines available tools and their capabilities for agent use
+
+# File operation tools
+file_operations:
+  - name: "read_file"
+    description: "Read file contents"
+    capabilities:
+      - "Read Liquid templates"
+      - "Read JavaScript files"
+      - "Read CSS files"
+      - "Read configuration files"
+
+  - name: "write_file"
+    description: "Create or overwrite files"
+    capabilities:
+      - "Create new sections"
+      - "Create new snippets"
+      - "Create CSS files"
+      - "Create JavaScript files"
+
+  - name: "edit_file"
+    description: "Make targeted edits to existing files"
+    capabilities:
+      - "Update Liquid templates"
+      - "Modify JavaScript"
+      - "Update CSS"
+      - "Edit configuration"
+
+  - name: "glob"
+    description: "Find files by pattern"
+    patterns:
+      - "sections/*.liquid"
+      - "snippets/*.liquid"
+      - "templates/**/*.json"
+      - "assets/*.css"
+      - "assets/*.js"
+
+  - name: "grep"
+    description: "Search file contents"
+    use_cases:
+      - "Find component usage"
+      - "Search for CSS variables"
+      - "Find Liquid tags"
+      - "Locate function definitions"
+
+# Code editing tools
+code_editing:
+  - name: "liquid_templating"
+    description: "Shopify Liquid template editing"
+    capabilities:
+      - "Section creation"
+      - "Snippet rendering"
+      - "Schema definition"
+      - "Liquid syntax validation"
+    patterns:
+      - "{% render 'snippet' %}"
+      - "{% section 'name' %}"
+      - "{{ object.property }}"
+      - "{% schema %}...{% endschema %}"
+
+  - name: "web_components"
+    description: "Web Component creation and editing"
+    capabilities:
+      - "Custom element definition"
+      - "Event handling"
+      - "DOM manipulation"
+      - "Component registration"
+    file: "assets/global.js"
+    pattern: "class ComponentName extends HTMLElement"
+
+  - name: "css_styling"
+    description: "CSS and styling tools"
+    capabilities:
+      - "Component styling"
+      - "Responsive design"
+      - "CSS variable usage"
+      - "Theme consistency"
+    variables:
+      - "--c-bg"
+      - "--c-panel"
+      - "--c-border"
+      - "--c-text-main"
+      - "--c-text-dim"
+      - "--c-accent"
+      - "--pad"
+      - "--grid-gap"
+
+# Testing tools
+testing:
+  - name: "vitest"
+    description: "Vitest test runner"
+    capabilities:
+      - "Run unit tests"
+      - "Run property tests"
+      - "Generate coverage reports"
+      - "Watch mode"
+    commands:
+      run: "pnpm test"
+      watch: "pnpm test:watch"
+      coverage: "pnpm test:coverage"
+
+  - name: "fast-check"
+    description: "Property-based testing library"
+    capabilities:
+      - "Generate test data"
+      - "Define properties"
+      - "Find counterexamples"
+      - "Shrink failures"
+    generators:
+      - "fc.string()"
+      - "fc.integer()"
+      - "fc.array()"
+      - "fc.object()"
+      - "fc.record()"
+
+  - name: "test_runner"
+    description: "Custom test execution"
+    capabilities:
+      - "Run specific tests"
+      - "Run test suites"
+      - "Generate reports"
+      - "Validate requirements"
+
+# Shopify-specific tools
+shopify_api:
+  - name: "shopify_cli"
+    description: "Shopify CLI commands"
+    commands:
+      dev: "shopify theme dev"
+      push: "shopify theme push"
+      pull: "shopify theme pull"
+      check: "shopify theme check"
+      package: "shopify theme package"
+      share: "shopify theme share"
+
+  - name: "admin_api"
+    description: "Shopify Admin API access"
+    capabilities:
+      - "Product management"
+      - "Metafield operations"
+      - "Collection management"
+      - "Theme configuration"
+    endpoints:
+      - "/admin/api/2024-01/products.json"
+      - "/admin/api/2024-01/metafields.json"
+      - "/admin/api/2024-01/collections.json"
+
+  - name: "storefront_api"
+    description: "Shopify Storefront API"
+    capabilities:
+      - "Product queries"
+      - "Cart operations"
+      - "Collection queries"
+    endpoints:
+      - "window.routes.cart_add_url"
+      - "window.routes.cart_url"
+      - "window.routes.cart_change_url"
+
+# Documentation tools
+documentation:
+  - name: "markdown"
+    description: "Markdown documentation creation"
+    capabilities:
+      - "Write documentation"
+      - "Update CLAUDE.md"
+      - "Create guides"
+      - "Generate reports"
+    formats:
+      - "GitHub Flavored Markdown"
+      - "CommonMark"
+
+  - name: "mermaid"
+    description: "Diagram generation"
+    capabilities:
+      - "Architecture diagrams"
+      - "Flow charts"
+      - "Sequence diagrams"
+      - "State diagrams"
+    types:
+      - "graph"
+      - "sequenceDiagram"
+      - "stateDiagram"
+      - "classDiagram"
+
+# Quality assurance tools
+quality_assurance:
+  - name: "linting"
+    description: "Code linting and formatting"
+    capabilities:
+      - "Check code style"
+      - "Validate syntax"
+      - "Enforce patterns"
+    tools:
+      - "Shopify theme check"
+      - "ESLint (if configured)"
+
+  - name: "static_analysis"
+    description: "Static code analysis"
+    capabilities:
+      - "Detect patterns"
+      - "Find issues"
+      - "Security checks"
+      - "Performance analysis"
+
+  - name: "pattern_matching"
+    description: "Verify theme patterns"
+    capabilities:
+      - "Check component patterns"
+      - "Validate structure"
+      - "Ensure consistency"
+    patterns:
+      - "Web component pattern"
+      - "Section schema pattern"
+      - "CSS variable usage"
+      - "Event naming conventions"
+
+# Validation tools
+validation:
+  - name: "schema_validation"
+    description: "Validate Shopify schemas"
+    capabilities:
+      - "Validate section schemas"
+      - "Check settings structure"
+      - "Verify block definitions"
+
+  - name: "liquid_validation"
+    description: "Validate Liquid syntax"
+    capabilities:
+      - "Check syntax"
+      - "Verify object access"
+      - "Validate filters"
+
+  - name: "accessibility_check"
+    description: "Check accessibility"
+    capabilities:
+      - "Verify ARIA labels"
+      - "Check semantic HTML"
+      - "Validate keyboard navigation"
+      - "Check color contrast"
+
+# Communication tools
+communication:
+  - name: "pubsub"
+    description: "Pub/sub event system"
+    file: "assets/pubsub.js"
+    capabilities:
+      - "Publish events"
+      - "Subscribe to events"
+      - "Unsubscribe handlers"
+    events:
+      - "cart:updated"
+      - "variant:changed"
+      - "product:added"
+
+  - name: "dom_events"
+    description: "Native DOM events"
+    capabilities:
+      - "CustomEvent creation"
+      - "Event dispatching"
+      - "Event listening"
+    patterns:
+      - "new CustomEvent('name', { detail: {} })"
+      - "element.dispatchEvent(event)"
+      - "document.addEventListener('name', handler)"
+
+# Tool availability by agent type
+agent_tool_mapping:
+  initialization:
+    - file_operations
+    - validation
+    - documentation
+
+  development:
+    - file_operations
+    - code_editing
+    - liquid_templating
+    - web_components
+    - css_styling
+    - shopify_api
+    - communication
+
+  testing:
+    - testing
+    - validation
+    - file_operations
+
+  documentation:
+    - documentation
+    - markdown
+    - mermaid
+    - file_operations
+
+  quality_assurance:
+    - quality_assurance
+    - validation
+    - file_operations
+
+  shopify_operations:
+    - shopify_api
+    - admin_api
+    - storefront_api
+    - file_operations

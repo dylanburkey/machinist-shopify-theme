@@ -1,0 +1,378 @@
+# Property-Based Testing Configuration
+# Defines properties, test strategies, and validation rules
+
+# Testing framework configuration
+framework:
+  name: "vitest"
+  version: "latest"
+  config_file: "vitest.config.js"
+
+property_testing:
+  library: "fast-check"
+  version: "latest"
+
+# Test directory structure
+directories:
+  tests: "property-tests/"
+  agents: "property-test-agents/"
+  reports: ".claude/docs/test-reports/"
+  fixtures: "property-tests/fixtures/"
+
+# Property definitions from task-requirments.md
+properties:
+  # Product Catalog Properties
+  - id: "property-1"
+    name: "Product Catalog Completeness"
+    description: "Validates that product catalog has all required fields and data"
+    requirements:
+      - "1.1"  # Product catalog creation
+      - "1.2"  # Category structure
+      - "1.4"  # Product data quality
+      - "1.5"  # Media assets
+    invariants:
+      - "All products have required fields (title, price, description)"
+      - "All products have at least one image"
+      - "All products belong to a valid category"
+      - "All prices are positive numbers"
+      - "Inventory counts are non-negative integers"
+    test_file: "property-tests/product-catalog.test.js"
+    priority: "critical"
+
+  # Metafield Properties
+  - id: "property-2"
+    name: "Metafield Data Population Completeness"
+    description: "Validates metafield data is complete and properly structured"
+    requirements:
+      - "2.1"  # Metafield system
+      - "2.2"  # Specification data
+      - "2.3"  # Product attachments
+    invariants:
+      - "All technical products have specification metafields"
+      - "Metafield values match defined types"
+      - "Required metafields are never empty"
+      - "Nested metafield structures are valid JSON"
+    test_file: "property-tests/metafield-population.test.js"
+    priority: "critical"
+
+  - id: "property-3"
+    name: "Metafield Validation System"
+    description: "Validates metafield validation rules work correctly"
+    requirements:
+      - "2.4"  # Data validation
+    invariants:
+      - "Invalid metafield values are rejected"
+      - "Type mismatches are caught"
+      - "Required field validation works"
+      - "Validation errors are descriptive"
+    test_file: "property-tests/metafield-validation.test.js"
+    priority: "high"
+
+  - id: "property-4"
+    name: "Bulk Operations Functionality"
+    description: "Validates bulk metafield operations work correctly"
+    requirements:
+      - "2.5"  # Bulk operations
+      - "16.2"  # Admin bulk tools
+    invariants:
+      - "Bulk updates apply to all selected items"
+      - "Partial failures are handled gracefully"
+      - "Rollback works on errors"
+      - "Progress is accurately reported"
+    test_file: "property-tests/bulk-operations.test.js"
+    priority: "high"
+
+  # Cost Calculator Properties
+  - id: "property-7"
+    name: "Cost Calculator Accuracy and Integration"
+    description: "Validates cost calculator produces accurate results"
+    requirements:
+      - "5.1"  # Calculator accuracy
+      - "5.2"  # ROI calculations
+      - "5.4"  # Integration
+      - "5.5"  # PDF export
+    invariants:
+      - "Savings calculations are mathematically correct"
+      - "ROI percentages are accurate"
+      - "Payback periods are calculated correctly"
+      - "PDF exports contain all data"
+      - "Calculator works for edge cases (zero cost, high savings)"
+    test_file: "property-tests/cost-calculator.test.js"
+    priority: "high"
+
+  - id: "property-8"
+    name: "Cost Calculator Scenario Diversity"
+    description: "Validates calculator handles diverse scenarios"
+    requirements:
+      - "5.3"  # Multiple scenarios
+    invariants:
+      - "Equipment scenarios calculate correctly"
+      - "Consumable scenarios calculate correctly"
+      - "Service scenarios calculate correctly"
+      - "Mixed scenarios work together"
+    test_file: "property-tests/calculator-scenarios.test.js"
+    priority: "medium"
+
+  # Specification Search Property
+  - id: "property-6"
+    name: "Specification Search Functionality"
+    description: "Validates specification search returns relevant results"
+    requirements:
+      - "4.3"  # Spec search
+    invariants:
+      - "Search returns products matching criteria"
+      - "Filters combine correctly (AND logic)"
+      - "Range queries work correctly"
+      - "Search results are sorted properly"
+      - "Empty searches return all products"
+    test_file: "property-tests/spec-search.test.js"
+    priority: "high"
+
+  # Marketing Section Properties
+  - id: "property-9"
+    name: "Marketing Section Responsive Grid Layout"
+    description: "Validates responsive grid layout works across devices"
+    requirements:
+      - "6.1"  # Grid layout
+      - "6.2"  # Responsiveness
+      - "6.3"  # Visual hierarchy
+      - "12.1"  # Section structure
+      - "12.2"  # Mobile layout
+      - "12.3"  # Tablet layout
+      - "12.4"  # Desktop layout
+    invariants:
+      - "Grid columns adapt to viewport width"
+      - "Tiles maintain aspect ratio"
+      - "Layout doesn't break at any width"
+      - "CSS Grid is used (no floats)"
+    test_file: "property-tests/marketing-grid.test.js"
+    priority: "high"
+
+  - id: "property-10"
+    name: "Marketing Section Tile Capacity and Content"
+    description: "Validates tile capacity and content structure"
+    requirements:
+      - "6.4"  # Tile capacity
+      - "6.5"  # Content elements
+      - "9.1"  # Support for 12 tiles
+    invariants:
+      - "Section supports exactly 12 tiles"
+      - "Each tile has required content elements"
+      - "Tiles render consistently"
+      - "Schema allows tile configuration"
+    test_file: "property-tests/marketing-tiles.test.js"
+    priority: "medium"
+
+  - id: "property-11"
+    name: "Marketing Section Content Persistence"
+    description: "Validates content persists through Shopify settings"
+    requirements:
+      - "7.5"  # Content persistence
+    invariants:
+      - "Settings save correctly"
+      - "Content persists after page reload"
+      - "Schema validation works"
+      - "Default values are set"
+    test_file: "property-tests/content-persistence.test.js"
+    priority: "medium"
+
+  - id: "property-12"
+    name: "Use Case Display Logic"
+    description: "Validates use case display logic works correctly"
+    requirements:
+      - "8.1"  # Use case display
+      - "8.2"  # Up to 5 use cases
+      - "8.4"  # Conditional rendering
+      - "8.5"  # Empty state handling
+    invariants:
+      - "Up to 5 use cases display per tile"
+      - "Empty use cases don't render"
+      - "Use case order is preserved"
+      - "Formatting is consistent"
+    test_file: "property-tests/use-case-display.test.js"
+    priority: "medium"
+
+  # Navigation and Visual Properties
+  - id: "property-13"
+    name: "Template Navigation Configuration"
+    description: "Validates template navigation works correctly"
+    requirements:
+      - "9.2"  # Template buttons
+      - "9.3"  # Configurable URLs
+      - "9.5"  # Same window navigation
+    invariants:
+      - "All template links are valid URLs"
+      - "Links navigate correctly"
+      - "Different presets have different URLs"
+      - "Navigation stays in same window"
+    test_file: "property-tests/template-navigation.test.js"
+    priority: "medium"
+
+  - id: "property-14"
+    name: "Visual Preview Customization"
+    description: "Validates visual preview customization"
+    requirements:
+      - "10.1"  # Preview areas
+      - "10.2"  # Custom colors
+      - "10.3"  # Color schemes
+      - "10.5"  # Mockup elements
+    invariants:
+      - "Preview background colors are valid CSS"
+      - "Each preset has unique color scheme"
+      - "Mockup elements render correctly"
+      - "Preview is visually distinct per preset"
+    test_file: "property-tests/visual-preview.test.js"
+    priority: "low"
+
+  # Marketing Enhancement Properties
+  - id: "property-15"
+    name: "Marketing Enhancement Features"
+    description: "Validates badges and value propositions"
+    requirements:
+      - "11.1"  # Badges
+      - "11.2"  # Value propositions
+      - "11.4"  # Hover effects
+      - "11.5"  # Industry-specific content
+    invariants:
+      - "Badges display correctly when set"
+      - "Value propositions are industry-specific"
+      - "Hover effects work on all devices"
+      - "Custom badge text is supported"
+    test_file: "property-tests/marketing-enhancements.test.js"
+    priority: "low"
+
+  # Accessibility and Performance Properties
+  - id: "property-16"
+    name: "Marketing Section Accessibility and Performance"
+    description: "Validates accessibility and performance standards"
+    requirements:
+      - "12.5"  # Accessibility
+      - "14.1"  # Performance
+      - "14.2"  # Efficient CSS
+      - "14.5"  # Minimal DOM
+    invariants:
+      - "Minimum font size is 14px"
+      - "Touch targets are at least 44px"
+      - "No external CSS dependencies"
+      - "CSS transitions used sparingly"
+      - "DOM elements are minimized"
+    test_file: "property-tests/accessibility-performance.test.js"
+    priority: "critical"
+
+  # System Integration Properties
+  - id: "property-17"
+    name: "Marketing Section Configuration System"
+    description: "Validates section configuration system"
+    requirements:
+      - "13.1"  # Section titles
+      - "13.2"  # Padding control
+      - "13.3"  # Background colors
+      - "13.4"  # Value indicators
+      - "13.5"  # Default presets
+    invariants:
+      - "Section title/subtitle are editable"
+      - "Padding is configurable"
+      - "Background colors are customizable"
+      - "Value indicators toggle correctly"
+      - "Default preset tiles exist in schema"
+    test_file: "property-tests/section-config.test.js"
+    priority: "medium"
+
+  - id: "property-18"
+    name: "System Integration Consistency"
+    description: "Validates system integration consistency"
+    requirements:
+      - "15.1"  # Schema patterns
+      - "15.2"  # CSS variables
+      - "15.3"  # Template integration
+      - "15.4"  # File naming
+      - "15.5"  # Theme customization
+    invariants:
+      - "Section follows Shopify schema patterns"
+      - "CSS variables match theme conventions"
+      - "Section integrates with preset templates"
+      - "File naming follows conventions"
+      - "Compatible with theme customizer"
+    test_file: "property-tests/system-integration.test.js"
+    priority: "high"
+
+  - id: "property-19"
+    name: "Admin Interface Functionality"
+    description: "Validates admin interface tools"
+    requirements:
+      - "16.3"  # Validation tools
+      - "16.4"  # Templates
+      - "16.5"  # Sync tools
+    invariants:
+      - "Data validation works correctly"
+      - "Templates are properly formatted"
+      - "Sync tools update data correctly"
+      - "Error messages are clear"
+    test_file: "property-tests/admin-interface.test.js"
+    priority: "medium"
+
+  # Performance and SEO Properties
+  - id: "property-20"
+    name: "Performance and SEO Standards"
+    description: "Validates performance and SEO requirements"
+    requirements:
+      - "17.1"  # PageSpeed 90+
+      - "17.2"  # Structured data
+      - "17.3"  # Meta tags
+      - "17.4"  # Image optimization
+      - "17.5"  # PWA functionality
+    invariants:
+      - "PageSpeed score is 90+"
+      - "All products have structured data"
+      - "Meta tags are complete"
+      - "Images are optimized and lazy-loaded"
+      - "PWA manifest is valid"
+    test_file: "property-tests/performance-seo.test.js"
+    priority: "high"
+
+  # JavaScript-Free Functionality
+  - id: "property-21"
+    name: "JavaScript-Free Core Functionality"
+    description: "Validates core functionality works without JavaScript"
+    requirements:
+      - "14.3"  # JS-free core
+      - "14.4"  # CSS-only layout
+    invariants:
+      - "Layout renders without JavaScript"
+      - "Navigation works without JavaScript"
+      - "Content displays without JavaScript"
+      - "Only CSS used for layout and interactions"
+    test_file: "property-tests/js-free.test.js"
+    priority: "medium"
+
+# Test execution configuration
+execution:
+  # Number of test runs per property
+  num_runs: 100
+
+  # Seed for reproducibility (optional)
+  seed: null
+
+  # Test timeout (ms)
+  timeout: 5000
+
+  # Shrinking configuration
+  shrinking:
+    max_shrinks: 1000
+    enabled: true
+
+  # Verbose output
+  verbose: true
+
+# Test reporting
+reporting:
+  format: "markdown"
+  output_dir: ".claude/docs/test-reports"
+  include_counterexamples: true
+  include_statistics: true
+
+# Continuous integration
+ci:
+  run_on_commit: false
+  run_on_push: true
+  fail_on_property_violation: true
+  coverage_threshold: 80

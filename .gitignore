@@ -45,3 +45,6 @@ temp/
 
 # Editor directories
 .history/
+
+# Local agent settings
+.claude/settings.local.json

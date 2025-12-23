@@ -1,0 +1,188 @@
+# Task Management Configuration
+# Defines task categories, workflows, and execution patterns
+
+# Task categories aligned with project phases
+categories:
+  - name: "initialization"
+    description: "Project setup and configuration tasks"
+    priority: "critical"
+
+  - name: "development"
+    description: "Feature implementation and code development"
+    priority: "high"
+
+  - name: "testing"
+    description: "Property-based and unit testing tasks"
+    priority: "high"
+
+  - name: "documentation"
+    description: "Documentation creation and maintenance"
+    priority: "medium"
+
+  - name: "review"
+    description: "Code review and quality assurance"
+    priority: "high"
+
+  - name: "deployment"
+    description: "Theme deployment and Shopify operations"
+    priority: "medium"
+
+# Task workflow patterns
+workflows:
+  # Standard feature development workflow
+  feature_development:
+    name: "Feature Development Workflow"
+    steps:
+      - step: 1
+        name: "Plan"
+        agent: "dev"
+        actions:
+          - "Review requirements"
+          - "Identify files to modify"
+          - "Plan implementation approach"
+
+      - step: 2
+        name: "Implement"
+        agent: "dev"
+        actions:
+          - "Write code"
+          - "Follow theme patterns"
+          - "Test locally"
+
+      - step: 3
+        name: "Test"
+        agent: "test"
+        actions:
+          - "Write property tests"
+          - "Run test suite"
+          - "Validate requirements"
+
+      - step: 4
+        name: "Review"
+        agent: "review"
+        actions:
+          - "Code review"
+          - "Check patterns"
+          - "Verify quality"
+
+      - step: 5
+        name: "Document"
+        agent: "docs"
+        actions:
+          - "Update documentation"
+          - "Add code comments"
+          - "Update CLAUDE.md if needed"
+
+  # Shopify section creation workflow
+  section_creation:
+    name: "Shopify Section Creation"
+    steps:
+      - step: 1
+        name: "Design schema"
+        agent: "dev"
+        actions:
+          - "Define section settings"
+          - "Plan blocks structure"
+          - "Identify CSS variables"
+
+      - step: 2
+        name: "Implement section"
+        agent: "dev"
+        actions:
+          - "Create .liquid file in sections/"
+          - "Write HTML structure"
+          - "Add schema definition"
+
+      - step: 3
+        name: "Style section"
+        agent: "dev"
+        actions:
+          - "Add CSS to assets/"
+          - "Use theme CSS variables"
+          - "Ensure responsive design"
+
+      - step: 4
+        name: "Add interactivity"
+        agent: "dev"
+        actions:
+          - "Create web component if needed"
+          - "Register custom element"
+          - "Wire up events"
+
+      - step: 5
+        name: "Test in theme editor"
+        agent: "shopify"
+        actions:
+          - "Deploy to development store"
+          - "Test in theme customizer"
+          - "Verify all settings work"
+
+  # Property test creation workflow
+  property_test_creation:
+    name: "Property-Based Test Creation"
+    steps:
+      - step: 1
+        name: "Identify property"
+        agent: "test"
+        actions:
+          - "Review requirements"
+          - "Identify testable properties"
+          - "Define invariants"
+
+      - step: 2
+        name: "Write test"
+        agent: "test"
+        actions:
+          - "Create test file"
+          - "Use fast-check generators"
+          - "Write property assertions"
+
+      - step: 3
+        name: "Run and validate"
+        agent: "test"
+        actions:
+          - "Run test suite"
+          - "Check for counterexamples"
+          - "Refine if needed"
+
+# Task execution rules
+execution:
+  # Maximum parallel tasks
+  max_parallel: 3
+
+  # Task timeout (minutes)
+  timeout: 30
+
+  # Retry policy
+  retry:
+    max_attempts: 3
+    backoff: "exponential"
+
+  # Checkpoints - require user confirmation
+  checkpoints:
+    - "Core systems complete"
+    - "Complete system validation"
+    - "Before deployment"
+
+# Task dependencies from task-requirments.md
+# This maps to the comprehensive implementation plan
+task_dependencies:
+  "1.1": []  # Product catalog setup has no dependencies
+  "2.1": ["1.1"]  # Metafield admin requires products
+  "2.4": ["2.1"]  # Populating specs requires admin interface
+  "4.1": ["2.4"]  # Cost calculator needs product data
+  "6.1": ["1.1", "2.4"]  # Marketing showcase needs products and data
+  "13.1": ["1.1", "2.1", "2.4", "4.1", "6.1"]  # Final integration needs everything
+
+# Integration with external task file
+external_tasks:
+  file: ".claude/tasks/task-requirments.md"
+  format: "markdown_checklist"
+  auto_sync: true
+
+# Task reporting
+reporting:
+  format: "markdown"
+  include_timestamps: true
+  include_agent: true
+  output_dir: ".claude/docs/task-reports"

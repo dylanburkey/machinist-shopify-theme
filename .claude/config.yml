@@ -1,0 +1,58 @@
+# Claude Agent Configuration
+# Main configuration file for the Machinist Shopify Theme agent system
+
+project:
+  name: "Machinist Shopify Theme"
+  version: "1.0.0"
+  description: "A dark, industrial aesthetic Shopify theme for precision tech e-commerce"
+  root: "/Users/dylanburkey/dev/projects/machinist-shopify-theme"
+
+# Agent system configuration
+agents:
+  enabled: true
+  config_file: ".claude/agents.yml"
+  auto_initialize: false
+
+# Task management configuration
+tasks:
+  enabled: true
+  config_file: ".claude/tasks.yml"
+  requirements_file: ".claude/tasks/task-requirments.md"
+
+# Tools configuration
+tools:
+  enabled: true
+  config_file: ".claude/tools.yml"
+
+# Property-based testing configuration
+property_tests:
+  enabled: true
+  config_file: ".claude/property-tests.yml"
+  agents_config: ".claude/property-test-agents.yml"
+  framework: "vitest"
+  library: "fast-check"
+
+# Documentation
+docs:
+  directory: ".claude/docs"
+  readme: "CLAUDE.md"
+
+# Development settings
+development:
+  commands:
+    dev: "pnpm dev"
+    push: "pnpm push"
+    pull: "pnpm pull"
+    check: "pnpm check"
+    package: "pnpm package"
+    share: "pnpm share"
+
+# Shopify theme structure
+theme_structure:
+  layouts: "layout/"
+  sections: "sections/"
+  snippets: "snippets/"
+  templates: "templates/"
+  assets: "assets/"
+  config: "config/"
+  locales: "locales/"

@@ -1,0 +1,312 @@
+# Property Test Agents Configuration
+# Defines specialized agents for creating and managing property-based tests
+
+# Agent definitions for property testing
+agents:
+  # Generator Agent - Creates fast-check generators
+  - name: "generator"
+    type: "property_test_generator"
+    description: "Creates fast-check generators for test data"
+    capabilities:
+      - "Define custom generators"
+      - "Compose generators"
+      - "Create domain-specific generators"
+      - "Handle edge cases"
+    patterns:
+      product_generator: |
+        fc.record({
+          title: fc.string({ minLength: 1, maxLength: 100 }),
+          price: fc.double({ min: 0.01, max: 100000 }),
+          description: fc.string({ maxLength: 5000 }),
+          inventory: fc.integer({ min: 0, max: 10000 }),
+          sku: fc.string({ minLength: 3, maxLength: 50 })
+        })
+
+      metafield_generator: |
+        fc.record({
+          namespace: fc.constantFrom('custom', 'technical', 'specs'),
+          key: fc.string({ minLength: 1, maxLength: 50 }),
+          value: fc.oneof(
+            fc.string(),
+            fc.integer(),
+            fc.double(),
+            fc.boolean(),
+            fc.jsonValue()
+          ),
+          type: fc.constantFrom('string', 'number_integer', 'number_decimal', 'boolean', 'json')
+        })
+
+      preset_generator: |
+        fc.record({
+          name: fc.string({ minLength: 1, maxLength: 50 }),
+          industry: fc.constantFrom('Manufacturing', 'Industrial', 'Construction', 'Safety'),
+          color_scheme: fc.record({
+            primary: fc.hexaString({ minLength: 6, maxLength: 6 }),
+            secondary: fc.hexaString({ minLength: 6, maxLength: 6 }),
+            accent: fc.hexaString({ minLength: 6, maxLength: 6 })
+          }),
+          template_url: fc.webUrl()
+        })
+
+  # Property Agent - Defines and validates properties
+  - name: "property"
+    type: "property_definition"
+    description: "Defines testable properties and invariants"
+    capabilities:
+      - "Identify invariants"
+      - "Define properties"
+      - "Create assertions"
+      - "Document properties"
+    templates:
+      property_template: |
+        import { fc } from 'fast-check';
+        import { describe, it, expect } from 'vitest';
+
+        describe('Property: {PROPERTY_NAME}', () => {
+          it('should satisfy invariant: {INVARIANT}', () => {
+            fc.assert(
+              fc.property(
+                {GENERATOR},
+                (input) => {
+                  // Test implementation
+                  {ASSERTION}
+                }
+              ),
+              { numRuns: 100 }
+            );
+          });
+        });
+
+  # Shrinking Agent - Handles test failure shrinking
+  - name: "shrinker"
+    type: "failure_shrinking"
+    description: "Analyzes and shrinks test failures to minimal cases"
+    capabilities:
+      - "Analyze counterexamples"
+      - "Shrink to minimal case"
+      - "Report failure patterns"
+      - "Suggest fixes"
+    config:
+      max_shrinks: 1000
+      verbose: true
+
+  # Coverage Agent - Analyzes test coverage
+  - name: "coverage"
+    type: "test_coverage"
+    description: "Analyzes property test coverage"
+    capabilities:
+      - "Track property coverage"
+      - "Identify untested invariants"
+      - "Generate coverage reports"
+      - "Suggest additional tests"
+    metrics:
+      - "Properties covered"
+      - "Invariants tested"
+      - "Edge cases tested"
+      - "Requirements validated"
+
+  # Integration Agent - Tests system integration
+  - name: "integration"
+    type: "integration_testing"
+    description: "Creates integration tests for system components"
+    capabilities:
+      - "Test component interactions"
+      - "Validate data flow"
+      - "Test end-to-end workflows"
+      - "Verify system consistency"
+    focus_areas:
+      - "Product catalog → Metafields → Display"
+      - "Cost calculator → PDF export"
+      - "Search → Filtering → Results"
+      - "Admin operations → Data sync"
+
+# Property test patterns and strategies
+patterns:
+  # Commutativity property
+  commutativity:
+    description: "Order of operations doesn't matter"
+    example: "a + b === b + a"
+    template: |
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (a, b) => {
+          expect(operation(a, b)).toBe(operation(b, a));
+        })
+      );
+
+  # Idempotency property
+  idempotency:
+    description: "Applying operation twice has same effect as once"
+    example: "f(f(x)) === f(x)"
+    template: |
+      fc.assert(
+        fc.property(generator, (x) => {
+          expect(operation(operation(x))).toEqual(operation(x));
+        })
+      );
+
+  # Invariance property
+  invariance:
+    description: "Some property remains constant"
+    example: "array.sort().length === array.length"
+    template: |
+      fc.assert(
+        fc.property(generator, (x) => {
+          const before = measure(x);
+          const after = measure(operation(x));
+          expect(after).toBe(before);
+        })
+      );
+
+  # Round-trip property
+  roundtrip:
+    description: "Encode then decode returns original"
+    example: "decode(encode(x)) === x"
+    template: |
+      fc.assert(
+        fc.property(generator, (x) => {
+          expect(decode(encode(x))).toEqual(x);
+        })
+      );
+
+  # Monotonicity property
+  monotonicity:
+    description: "Increasing input increases output"
+    example: "a < b => f(a) <= f(b)"
+    template: |
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (a, b) => {
+          fc.pre(a < b);
+          expect(f(a)).toBeLessThanOrEqual(f(b));
+        })
+      );
+
+# Test data strategies
+strategies:
+  # Edge case testing
+  edge_cases:
+    description: "Test boundary conditions and edge cases"
+    examples:
+      - "Empty arrays"
+      - "Zero values"
+      - "Maximum values"
+      - "Negative numbers"
+      - "Special characters"
+      - "Very long strings"
+      - "Null/undefined"
+
+  # Compositional testing
+  compositional:
+    description: "Test composed operations"
+    approach: "Build complex tests from simpler properties"
+
+  # Stateful testing
+  stateful:
+    description: "Test stateful systems"
+    approach: "Model state transitions and verify invariants"
+
+  # Regression testing
+  regression:
+    description: "Test known failure cases"
+    approach: "Use fc.sample() to create regression test cases from failures"
+
+# Property test lifecycle
+lifecycle:
+  # 1. Property Identification
+  identify:
+    agent: "property"
+    actions:
+      - "Review requirements"
+      - "Identify invariants"
+      - "Define properties"
+      - "Document expectations"
+
+  # 2. Generator Creation
+  generate:
+    agent: "generator"
+    actions:
+      - "Create generators"
+      - "Handle edge cases"
+      - "Compose generators"
+      - "Test generator quality"
+
+  # 3. Test Implementation
+  implement:
+    agent: "property"
+    actions:
+      - "Write property tests"
+      - "Add assertions"
+      - "Configure test runs"
+      - "Set up fixtures"
+
+  # 4. Test Execution
+  execute:
+    agent: "coverage"
+    actions:
+      - "Run property tests"
+      - "Collect counterexamples"
+      - "Measure coverage"
+      - "Generate reports"
+
+  # 5. Failure Analysis
+  analyze:
+    agent: "shrinker"
+    actions:
+      - "Analyze failures"
+      - "Shrink to minimal case"
+      - "Document counterexamples"
+      - "Suggest fixes"
+
+  # 6. Integration Testing
+  integrate:
+    agent: "integration"
+    actions:
+      - "Test component integration"
+      - "Verify data flow"
+      - "Test end-to-end"
+      - "Validate system consistency"
+
+# Reporting and documentation
+reporting:
+  format: "markdown"
+  sections:
+    - "Property summary"
+    - "Invariants tested"
+    - "Test results"
+    - "Counterexamples (if any)"
+    - "Coverage metrics"
+    - "Recommendations"
+
+  output_template: |
+    # Property Test Report: {PROPERTY_NAME}
+
+    ## Summary
+    - **Property ID**: {PROPERTY_ID}
+    - **Requirements**: {REQUIREMENTS}
+    - **Test Runs**: {NUM_RUNS}
+    - **Status**: {STATUS}
+
+    ## Invariants
+    {INVARIANT_LIST}
+
+    ## Results
+    {RESULTS}
+
+    ## Coverage
+    {COVERAGE_METRICS}
+
+    ## Recommendations
+    {RECOMMENDATIONS}
+
+# Integration with main agent system
+integration:
+  parent_agent: "test"
+  spawned_by: ["dev", "test"]
+  reports_to: ["dev", "review"]
+
+  triggers:
+    - event: "code_change"
+      action: "Run affected property tests"
+    - event: "requirement_change"
+      action: "Update relevant properties"
+    - event: "test_failure"
+      action: "Analyze and shrink failure"

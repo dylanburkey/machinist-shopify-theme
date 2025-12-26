@@ -1,0 +1,432 @@
+{%- comment -%}
+  Smart Grid / Featured Cards - Machinist Industrial Theme
+  Container query enabled cards with multiple layout options
+{%- endcomment -%}
+
+<section class="section-smart-grid {% if section.settings.use_surface_bg %}section--surface{% endif %}" data-section-id="{{ section.id }}">
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="smart-grid-heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    <div class="smart-grid layout--{{ section.settings.layout }}">
+      {%- for block in section.blocks -%}
+        <div class="grid-item-wrapper" {{ block.shopify_attributes }}>
+          {%- case block.type -%}
+            {%- when 'card' -%}
+              <div class="industrial-card">
+                {%- if block.settings.image -%}
+                  <img
+                    src="{{ block.settings.image | image_url: width: 800 }}"
+                    srcset="{{ block.settings.image | image_url: width: 400 }} 400w,
+                            {{ block.settings.image | image_url: width: 800 }} 800w,
+                            {{ block.settings.image | image_url: width: 1200 }} 1200w"
+                    sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    alt="{{ block.settings.image.alt | default: block.settings.heading }}"
+                    class="card-img"
+                    loading="lazy"
+                  >
+                {%- elsif block.settings.show_placeholder -%}
+                  <div class="card-img card-img--placeholder">IMG</div>
+                {%- endif -%}
+
+                <div class="card-content">
+                  {%- if block.settings.tag != blank -%}
+                    <span class="card-tag">{{ block.settings.tag }}</span>
+                  {%- endif -%}
+
+                  {%- if block.settings.heading != blank -%}
+                    <h3 class="card-heading">{{ block.settings.heading }}</h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.text != blank -%}
+                    <p class="card-text">{{ block.settings.text }}</p>
+                  {%- endif -%}
+
+                  {%- if block.settings.button_label != blank -%}
+                    <a href="{{ block.settings.button_link }}" class="btn card-btn">
+                      {{ block.settings.button_label }}
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            {%- when 'product' -%}
+              {%- assign card_product = block.settings.product -%}
+              {%- if card_product != blank -%}
+                <a href="{{ card_product.url }}" class="industrial-card industrial-card--product">
+                  <img
+                    src="{{ card_product.featured_image | image_url: width: 800 }}"
+                    srcset="{{ card_product.featured_image | image_url: width: 400 }} 400w,
+                            {{ card_product.featured_image | image_url: width: 800 }} 800w,
+                            {{ card_product.featured_image | image_url: width: 1200 }} 1200w"
+                    sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    alt="{{ card_product.featured_image.alt | default: card_product.title }}"
+                    class="card-img"
+                    loading="lazy"
+                  >
+
+                  <div class="card-content">
+                    {%- if block.settings.show_vendor and card_product.vendor -%}
+                      <span class="card-tag">{{ card_product.vendor }}</span>
+                    {%- endif -%}
+
+                    <h3 class="card-heading">{{ card_product.title }}</h3>
+
+                    <p class="card-price">{{ card_product.price | money }}</p>
+
+                    <span class="btn card-btn">View Specs</span>
+                  </div>
+                </a>
+              {%- endif -%}
+
+            {%- when 'collection' -%}
+              {%- assign card_collection = block.settings.collection -%}
+              {%- if card_collection != blank -%}
+                <a href="{{ card_collection.url }}" class="industrial-card industrial-card--collection">
+                  <img
+                    src="{{ card_collection.featured_image | image_url: width: 800 }}"
+                    srcset="{{ card_collection.featured_image | image_url: width: 400 }} 400w,
+                            {{ card_collection.featured_image | image_url: width: 800 }} 800w,
+                            {{ card_collection.featured_image | image_url: width: 1200 }} 1200w"
+                    sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    alt="{{ card_collection.featured_image.alt | default: card_collection.title }}"
+                    class="card-img"
+                    loading="lazy"
+                  >
+
+                  <div class="card-content">
+                    <h3 class="card-heading">{{ card_collection.title }}</h3>
+                    {%- if card_collection.description != blank -%}
+                      <p class="card-text">{{ card_collection.description | strip_html | truncate: 100 }}</p>
+                    {%- endif -%}
+                  </div>
+                </a>
+              {%- endif -%}
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-smart-grid {
+    padding: 60px 0;
+    background: var(--c-bg);
+  }
+
+  .section--surface {
+    background: var(--c-panel);
+  }
+
+  .smart-grid-heading {
+    font-family: 'Teko', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+    color: var(--c-text-main);
+  }
+
+  /* Grid Layouts */
+  .smart-grid {
+    display: grid;
+    gap: var(--grid-gap);
+  }
+
+  .layout--cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .layout--cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .layout--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .layout--highlight {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .layout--highlight {
+      grid-template-columns: 2fr 1fr;
+    }
+
+    .layout--highlight .grid-item-wrapper:first-child {
+      grid-row: span 2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .layout--cols-2,
+    .layout--cols-3,
+    .layout--cols-4 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .layout--cols-3,
+    .layout--cols-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Container Query Wrapper */
+  .grid-item-wrapper {
+    container-type: inline-size;
+    height: 100%;
+  }
+
+  /* Industrial Card */
+  .industrial-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--c-panel);
+    border: 1px solid var(--c-border);
+    height: 100%;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .industrial-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-bottom: 4px solid var(--c-accent);
+  }
+
+  /* Container Query: Switch to horizontal layout in wide containers */
+  @container (min-width: 500px) {
+    .industrial-card {
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .industrial-card .card-img {
+      width: 50%;
+      height: 100%;
+      min-height: 300px;
+    }
+
+    .industrial-card .card-content {
+      width: 50%;
+      padding: 40px;
+    }
+  }
+
+  /* Card Image */
+  .card-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    background: var(--c-border);
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .industrial-card:hover .card-img {
+    filter: none;
+  }
+
+  .card-img--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-text-dim);
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* Card Content */
+  .card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .card-tag {
+    color: var(--c-accent);
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .card-heading {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    color: var(--c-text-main);
+  }
+
+  .card-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--c-text-dim);
+    margin-bottom: 1rem;
+    flex-grow: 1;
+  }
+
+  .card-price {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--c-accent);
+    margin-bottom: 1rem;
+  }
+
+  .card-btn {
+    align-self: flex-start;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Smart Grid",
+  "tag": "section",
+  "class": "section-grid",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Core Solutions"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "cols-2", "label": "2 Columns" },
+        { "value": "cols-3", "label": "3 Columns" },
+        { "value": "cols-4", "label": "4 Columns" },
+        { "value": "highlight", "label": "Highlight (1 large + 2 small)" }
+      ],
+      "default": "highlight"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_surface_bg",
+      "label": "Use surface background",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_placeholder",
+          "label": "Show placeholder if no image",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Tag / Category",
+          "default": "Category"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Card Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "View Specs"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show vendor",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Smart Grid",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "tag": "Heavy Equipment",
+            "heading": "Industrial Machinery",
+            "text": "High performance equipment for precision manufacturing.",
+            "button_label": "View Specs"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "Safety Systems",
+            "text": "Protection and monitoring equipment."
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "Automation",
+            "text": "Robotic integration and control systems."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

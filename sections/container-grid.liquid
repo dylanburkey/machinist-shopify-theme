@@ -1,0 +1,463 @@
+{%- comment -%}
+  Container Grid - Machinist Industrial Theme
+  Advanced container query-based grid with bento layouts
+
+  Features:
+  - Container queries for responsive cards
+  - Multiple layout patterns: standard grid, bento-left, bento-right, asymmetric
+  - Block types: card, product, collection, custom_html
+  - Industrial aesthetic with grayscale images
+{%- endcomment -%}
+
+<section class="container-grid-section" data-section-id="{{ section.id }}">
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <h2 class="container-grid__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    <div class="container-grid container-grid--{{ section.settings.layout }}">
+      {%- for block in section.blocks -%}
+        <div class="container-grid__item" {{ block.shopify_attributes }}>
+          {%- case block.type -%}
+            {%- when 'card' -%}
+              <div class="cq-card">
+                {%- if block.settings.image -%}
+                  <div class="cq-card__image-wrapper">
+                    <img
+                      src="{{ block.settings.image | image_url: width: 800 }}"
+                      srcset="{{ block.settings.image | image_url: width: 400 }} 400w,
+                              {{ block.settings.image | image_url: width: 800 }} 800w"
+                      sizes="(min-width: 1200px) 400px, (min-width: 768px) 50vw, 100vw"
+                      alt="{{ block.settings.image.alt | default: block.settings.title }}"
+                      class="cq-card__image"
+                      loading="lazy"
+                    >
+                  </div>
+                {%- endif -%}
+
+                <div class="cq-card__content">
+                  {%- if block.settings.tag != blank -%}
+                    <span class="cq-card__tag">{{ block.settings.tag }}</span>
+                  {%- endif -%}
+
+                  {%- if block.settings.title != blank -%}
+                    <h3 class="cq-card__title">{{ block.settings.title }}</h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.text != blank -%}
+                    <p class="cq-card__text">{{ block.settings.text }}</p>
+                  {%- endif -%}
+
+                  {%- if block.settings.button_label != blank -%}
+                    <a href="{{ block.settings.button_link }}" class="btn cq-card__btn">
+                      {{ block.settings.button_label }}
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            {%- when 'product' -%}
+              {%- assign card_product = block.settings.product -%}
+              {%- if card_product != blank -%}
+                <a href="{{ card_product.url }}" class="cq-card cq-card--product">
+                  <div class="cq-card__image-wrapper">
+                    <img
+                      src="{{ card_product.featured_image | image_url: width: 800 }}"
+                      srcset="{{ card_product.featured_image | image_url: width: 400 }} 400w,
+                              {{ card_product.featured_image | image_url: width: 800 }} 800w"
+                      sizes="(min-width: 1200px) 400px, (min-width: 768px) 50vw, 100vw"
+                      alt="{{ card_product.featured_image.alt | default: card_product.title }}"
+                      class="cq-card__image"
+                      loading="lazy"
+                    >
+                  </div>
+
+                  <div class="cq-card__content">
+                    {%- if card_product.vendor -%}
+                      <span class="cq-card__tag">{{ card_product.vendor }}</span>
+                    {%- endif -%}
+
+                    <h3 class="cq-card__title">{{ card_product.title }}</h3>
+
+                    <p class="cq-card__price">{{ card_product.price | money }}</p>
+
+                    <span class="btn cq-card__btn">View Product</span>
+                  </div>
+                </a>
+              {%- endif -%}
+
+            {%- when 'collection' -%}
+              {%- assign card_collection = block.settings.collection -%}
+              {%- if card_collection != blank -%}
+                <a href="{{ card_collection.url }}" class="cq-card cq-card--collection">
+                  <div class="cq-card__image-wrapper">
+                    <img
+                      src="{{ card_collection.featured_image | image_url: width: 800 }}"
+                      srcset="{{ card_collection.featured_image | image_url: width: 400 }} 400w,
+                              {{ card_collection.featured_image | image_url: width: 800 }} 800w"
+                      sizes="(min-width: 1200px) 400px, (min-width: 768px) 50vw, 100vw"
+                      alt="{{ card_collection.featured_image.alt | default: card_collection.title }}"
+                      class="cq-card__image"
+                      loading="lazy"
+                    >
+                  </div>
+
+                  <div class="cq-card__content">
+                    <h3 class="cq-card__title">{{ card_collection.title }}</h3>
+
+                    {%- if card_collection.description != blank -%}
+                      <p class="cq-card__text">{{ card_collection.description | strip_html | truncate: 120 }}</p>
+                    {%- endif -%}
+
+                    <span class="btn cq-card__btn">Browse Collection</span>
+                  </div>
+                </a>
+              {%- endif -%}
+
+            {%- when 'custom_html' -%}
+              <div class="cq-card cq-card--html">
+                {{ block.settings.html }}
+              </div>
+
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .container-grid-section {
+    padding: 60px 0;
+    background: var(--c-bg);
+  }
+
+  .container-grid__heading {
+    font-family: 'Teko', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--c-text-main);
+  }
+
+  /* Grid Layouts */
+  .container-grid {
+    display: grid;
+    gap: 2px;
+  }
+
+  /* Standard Grid: Equal columns */
+  .container-grid--standard {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  /* Bento Left: Large item on left */
+  .container-grid--bento-left {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .container-grid--bento-left .container-grid__item:first-child {
+    grid-row: span 2;
+  }
+
+  /* Bento Right: Large item on right */
+  .container-grid--bento-right {
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto auto;
+  }
+
+  .container-grid--bento-right .container-grid__item:last-child {
+    grid-row: span 2;
+  }
+
+  /* Asymmetric: Mixed sizes */
+  .container-grid--asymmetric {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .container-grid--asymmetric .container-grid__item:nth-child(1) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .container-grid--asymmetric .container-grid__item:nth-child(2),
+  .container-grid--asymmetric .container-grid__item:nth-child(3) {
+    grid-column: span 2;
+  }
+
+  .container-grid--asymmetric .container-grid__item:nth-child(4),
+  .container-grid--asymmetric .container-grid__item:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  @media (max-width: 900px) {
+    .container-grid--bento-left,
+    .container-grid--bento-right,
+    .container-grid--asymmetric {
+      grid-template-columns: 1fr;
+    }
+
+    .container-grid--bento-left .container-grid__item:first-child,
+    .container-grid--bento-right .container-grid__item:last-child,
+    .container-grid--asymmetric .container-grid__item {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+
+  /* Container Query Setup */
+  .container-grid__item {
+    container-type: inline-size;
+    container-name: card-container;
+  }
+
+  /* Card Base Styles */
+  .cq-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--c-panel);
+    border: 1px solid var(--c-border);
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s;
+  }
+
+  .cq-card:hover {
+    border-color: var(--c-accent);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Container Query: Switch to horizontal layout in wide containers */
+  @container card-container (min-width: 500px) {
+    .cq-card {
+      flex-direction: row;
+    }
+
+    .cq-card__image-wrapper {
+      width: 50%;
+      flex-shrink: 0;
+    }
+
+    .cq-card__image {
+      height: 100%;
+      min-height: 300px;
+    }
+
+    .cq-card__content {
+      width: 50%;
+      padding: 2rem;
+    }
+  }
+
+  /* Card Image */
+  .cq-card__image-wrapper {
+    overflow: hidden;
+  }
+
+  .cq-card__image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.3s ease, transform 0.3s ease;
+  }
+
+  .cq-card:hover .cq-card__image {
+    filter: none;
+    transform: scale(1.05);
+  }
+
+  /* Card Content */
+  .cq-card__content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .cq-card__tag {
+    color: var(--c-accent);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .cq-card__title {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+    color: var(--c-text-main);
+  }
+
+  .cq-card__text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--c-text-dim);
+    margin-bottom: 1rem;
+    flex-grow: 1;
+  }
+
+  .cq-card__price {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--c-accent);
+    margin-bottom: 1rem;
+  }
+
+  .cq-card__btn {
+    align-self: flex-start;
+  }
+
+  /* Custom HTML Card */
+  .cq-card--html {
+    padding: 2rem;
+    color: var(--c-text-main);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Container Grid",
+  "tag": "section",
+  "class": "container-grid-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured Products"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "standard", "label": "Standard Grid" },
+        { "value": "bento-left", "label": "Bento Left (1 large + 2 small)" },
+        { "value": "bento-right", "label": "Bento Right (2 small + 1 large)" },
+        { "value": "asymmetric", "label": "Asymmetric" }
+      ],
+      "default": "standard"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Tag",
+          "default": "Featured"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Card Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "Add your card description here."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Learn More"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        }
+      ]
+    },
+    {
+      "type": "custom_html",
+      "name": "Custom HTML",
+      "settings": [
+        {
+          "type": "html",
+          "id": "html",
+          "label": "HTML"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Container Grid",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "tag": "Heavy Duty",
+            "title": "Industrial Equipment",
+            "text": "Professional-grade machinery for precision manufacturing.",
+            "button_label": "View Specs"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "tag": "Safety",
+            "title": "Protection Systems",
+            "text": "Comprehensive safety solutions for industrial environments."
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "tag": "Automation",
+            "title": "Control Systems",
+            "text": "Advanced automation and monitoring equipment."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

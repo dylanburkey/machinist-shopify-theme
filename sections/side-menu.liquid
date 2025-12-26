@@ -1,0 +1,479 @@
+{%- comment -%}
+  Side Menu - Machinist Industrial Theme
+  Documentation navigation menu with reading progress
+
+  Features:
+  - Sticky sidebar navigation
+  - Reading progress bar
+  - Smooth scroll to sections
+  - Keyboard navigation support
+  - Active section highlighting
+{%- endcomment -%}
+
+<section class="side-menu-section" data-section-id="{{ section.id }}">
+  <div class="container">
+    <div class="side-menu-container">
+      <aside class="side-menu" data-side-menu>
+        {%- if section.settings.heading != blank -%}
+          <h2 class="side-menu__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.show_progress -%}
+          <div class="side-menu-progress">
+            <div class="side-menu-progress__bar" data-progress-bar></div>
+          </div>
+        {%- endif -%}
+
+        <nav class="side-menu__nav" aria-label="{{ section.settings.heading | default: 'Table of Contents' }}">
+          <ul class="side-menu__list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'menu_item' -%}
+                <li class="side-menu__item" {{ block.shopify_attributes }}>
+                  <a
+                    href="{{ block.settings.link }}"
+                    class="side-menu__link {% if block.settings.is_parent %}side-menu__link--parent{% endif %}"
+                    {% if block.settings.link contains '#' %}data-scroll-link{% endif %}
+                  >
+                    {{ block.settings.title }}
+                  </a>
+                </li>
+              {%- elsif block.type == 'menu_divider' -%}
+                <li class="side-menu__divider" {{ block.shopify_attributes }}></li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </nav>
+      </aside>
+
+      <div class="side-menu__content">
+        {{ content_for_layout }}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  class SideMenu {
+    constructor(element) {
+      this.element = element;
+      this.menu = element.querySelector('.side-menu');
+      this.links = element.querySelectorAll('[data-scroll-link]');
+      this.progressBar = element.querySelector('[data-progress-bar]');
+
+      this.init();
+    }
+
+    init() {
+      // Sticky sidebar
+      this.handleSticky();
+      window.addEventListener('scroll', () => this.handleSticky());
+
+      // Smooth scroll for anchor links
+      this.links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href.startsWith('#')) {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              // Update URL without jumping
+              history.pushState(null, null, href);
+            }
+          }
+        });
+      });
+
+      // Active link highlighting
+      this.updateActiveLink();
+      window.addEventListener('scroll', () => this.updateActiveLink());
+
+      // Reading progress
+      if (this.progressBar) {
+        this.updateProgress();
+        window.addEventListener('scroll', () => this.updateProgress());
+      }
+
+      // Keyboard navigation
+      this.handleKeyboard();
+    }
+
+    handleSticky() {
+      const rect = this.element.getBoundingClientRect();
+      const isStuck = rect.top <= 0;
+      this.menu.classList.toggle('is-stuck', isStuck);
+    }
+
+    updateActiveLink() {
+      const scrollPosition = window.scrollY + 100;
+
+      this.links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href.startsWith('#')) {
+          const target = document.querySelector(href);
+          if (target) {
+            const targetTop = target.offsetTop;
+            const targetBottom = targetTop + target.offsetHeight;
+
+            if (scrollPosition >= targetTop && scrollPosition < targetBottom) {
+              this.links.forEach(l => l.classList.remove('is-active'));
+              link.classList.add('is-active');
+            }
+          }
+        }
+      });
+    }
+
+    updateProgress() {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      // Find all sections
+      const sections = Array.from(this.links)
+        .map(link => document.querySelector(link.getAttribute('href')))
+        .filter(Boolean);
+
+      if (sections.length > 0) {
+        const firstSection = sections[0];
+        const lastSection = sections[sections.length - 1];
+
+        const startPosition = firstSection.offsetTop;
+        const endPosition = lastSection.offsetTop + lastSection.offsetHeight;
+
+        const totalHeight = endPosition - startPosition;
+        const currentProgress = Math.min(Math.max(
+          (scrollPosition - startPosition + windowHeight) / totalHeight, 0
+        ), 1);
+
+        this.progressBar.style.width = (currentProgress * 100) + '%';
+      }
+    }
+
+    handleKeyboard() {
+      document.addEventListener('keydown', (e) => {
+        // Don't interfere with form inputs
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+
+        const currentIndex = Array.from(this.links).findIndex(link =>
+          link.classList.contains('is-active')
+        );
+
+        // Up arrow - go to previous section
+        if (e.key === 'ArrowUp' && currentIndex > 0) {
+          e.preventDefault();
+          this.links[currentIndex - 1].click();
+        }
+
+        // Down arrow - go to next section
+        if (e.key === 'ArrowDown' && currentIndex < this.links.length - 1) {
+          e.preventDefault();
+          this.links[currentIndex + 1].click();
+        }
+      });
+    }
+  }
+
+  // Initialize side menus
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-side-menu]').forEach(menu => {
+      new SideMenu(menu.closest('.side-menu-section'));
+    });
+  });
+</script>
+
+<style>
+  .side-menu-section {
+    padding: 60px 0;
+    background: var(--c-bg);
+  }
+
+  .side-menu-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .side-menu-container {
+      grid-template-columns: 1fr;
+    }
+
+    .side-menu {
+      position: static !important;
+      max-width: 100%;
+    }
+  }
+
+  /* Side Menu */
+  .side-menu {
+    position: sticky;
+    top: 20px;
+    max-width: 280px;
+  }
+
+  .side-menu.is-stuck {
+    /* Additional stuck styles if needed */
+  }
+
+  .side-menu__heading {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    color: var(--c-text-main);
+  }
+
+  /* Progress Bar */
+  .side-menu-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--c-border);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .side-menu-progress__bar {
+    height: 100%;
+    width: 0;
+    background: var(--c-accent);
+    transition: width 0.1s linear;
+  }
+
+  /* Navigation */
+  .side-menu__nav {
+    border-left: 2px solid var(--c-border);
+  }
+
+  .side-menu__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .side-menu__item {
+    margin: 0;
+  }
+
+  .side-menu__link {
+    display: block;
+    padding: 8px 0 8px 16px;
+    color: var(--c-text-dim);
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+    transition: all 0.15s;
+  }
+
+  .side-menu__link:hover {
+    color: var(--c-text-main);
+    border-left-color: var(--c-text-dim);
+  }
+
+  .side-menu__link.is-active {
+    color: var(--c-accent);
+    border-left-color: var(--c-accent);
+    font-weight: 700;
+  }
+
+  .side-menu__link--parent {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--c-text-main);
+  }
+
+  .side-menu__link--parent:hover {
+    border-left-color: var(--c-accent);
+  }
+
+  .side-menu__divider {
+    height: 1px;
+    background: var(--c-border);
+    margin: 1rem 0 1rem 16px;
+  }
+
+  /* Content */
+  .side-menu__content {
+    min-width: 0;
+  }
+
+  .side-menu__content h1,
+  .side-menu__content h2,
+  .side-menu__content h3,
+  .side-menu__content h4 {
+    font-family: 'Teko', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-text-main);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .side-menu__content h1 {
+    font-size: 3rem;
+  }
+
+  .side-menu__content h2 {
+    font-size: 2.5rem;
+  }
+
+  .side-menu__content h3 {
+    font-size: 2rem;
+  }
+
+  .side-menu__content h4 {
+    font-size: 1.5rem;
+  }
+
+  .side-menu__content p {
+    line-height: 1.8;
+    color: var(--c-text-dim);
+    margin-bottom: 1rem;
+  }
+
+  .side-menu__content ul,
+  .side-menu__content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--c-text-dim);
+  }
+
+  .side-menu__content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+
+  .side-menu__content code {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9em;
+    background: var(--c-panel);
+    padding: 2px 6px;
+    border: 1px solid var(--c-border);
+    color: var(--c-accent);
+  }
+
+  .side-menu__content pre {
+    background: var(--c-panel);
+    border: 1px solid var(--c-border);
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+
+  .side-menu__content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--c-text-main);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Side Menu",
+  "tag": "section",
+  "class": "side-menu-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Menu heading",
+      "default": "Table of Contents"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "label": "Show reading progress bar",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_item",
+      "name": "Menu Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Menu Item"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Use anchor links (#section-id) for smooth scroll"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_parent",
+          "label": "Parent item (heading style)",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "menu_divider",
+      "name": "Divider"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Side Menu",
+      "blocks": [
+        {
+          "type": "menu_item",
+          "settings": {
+            "title": "Introduction",
+            "link": "#introduction",
+            "is_parent": true
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "title": "Getting Started",
+            "link": "#getting-started"
+          }
+        },
+        {
+          "type": "menu_divider"
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "title": "Features",
+            "link": "#features",
+            "is_parent": true
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "title": "Specifications",
+            "link": "#specifications"
+          }
+        },
+        {
+          "type": "menu_item",
+          "settings": {
+            "title": "Installation",
+            "link": "#installation"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,371 @@
+{% comment %}
+  Trust Badges Section - Machinist Industrial Theme
+  Displays key value propositions and trust indicators
+
+  Features:
+  - Animated icons on hover
+  - Responsive grid layout
+  - Industrial aesthetic with safety orange accents
+  - Theme editor customizable
+{% endcomment %}
+
+{{ 'preset-trust-badges.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign bg_style = section.settings.background_style
+  assign columns = section.settings.columns | default: 4
+-%}
+
+<section
+  id="trust-badges-{{ section.id }}"
+  class="trust-badges trust-badges--{{ bg_style }}"
+  aria-labelledby="trust-badges-title-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="trust-badges"
+>
+  <div class="trust-badges__container container">
+    {%- if section.settings.title != blank -%}
+      <h2 id="trust-badges-title-{{ section.id }}" class="trust-badges__title">
+        {{ section.settings.title }}
+      </h2>
+    {%- endif -%}
+
+    <div class="trust-badges__grid trust-badges__grid--{{ columns }}">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'badge' -%}
+          <div class="trust-badge" {{ block.shopify_attributes }}>
+            <div class="trust-badge__icon">
+              {%- case block.settings.icon -%}
+                {%- when 'shield-check' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                {%- when 'flag' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                    <line x1="4" y1="22" x2="4" y2="15"/>
+                  </svg>
+                {%- when 'truck' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="3" width="15" height="13"/>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                {%- when 'phone' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                {%- when 'clock' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                {%- when 'award' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="7"/>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                  </svg>
+                {%- when 'star' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                {%- when 'check-circle' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                {%- when 'tool' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                  </svg>
+                {%- when 'cog' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6m-6-6H0m6 0h6m6 0h6m-6 0h-6"/>
+                  </svg>
+                {%- when 'droplet' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                  </svg>
+                {%- when 'trending-up' -%}
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                  </svg>
+              {%- endcase -%}
+            </div>
+            <div class="trust-badge__content">
+              {%- if block.settings.title != blank -%}
+                <h3 class="trust-badge__title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              {%- if block.settings.subtitle != blank -%}
+                <p class="trust-badge__subtitle">{{ block.settings.subtitle }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust-badges {
+    padding: 60px 0;
+    background: var(--c-bg);
+  }
+
+  .trust-badges--light {
+    background: var(--c-panel);
+  }
+
+  .trust-badges--white {
+    background: #1a1a1a;
+  }
+
+  .trust-badges--gradient {
+    background: linear-gradient(135deg, var(--c-bg) 0%, var(--c-panel) 100%);
+  }
+
+  .trust-badges--dark {
+    background: #000000;
+  }
+
+  .trust-badges__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 var(--pad);
+  }
+
+  .trust-badges__title {
+    font-family: 'Teko', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--c-text-main);
+  }
+
+  .trust-badges__grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .trust-badges__grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .trust-badges__grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .trust-badges__grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .trust-badges__grid--5 {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .trust-badges__grid--6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  @media (max-width: 1024px) {
+    .trust-badges__grid--4,
+    .trust-badges__grid--5,
+    .trust-badges__grid--6 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .trust-badges__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .trust-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: var(--c-panel);
+    border: 1px solid var(--c-border);
+    border-radius: 0;
+    transition: all 0.15s ease;
+  }
+
+  .trust-badge:hover {
+    border-color: var(--c-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 77, 0, 0.2);
+  }
+
+  .trust-badge__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+    color: var(--c-accent);
+    transition: transform 0.15s ease;
+  }
+
+  .trust-badge:hover .trust-badge__icon {
+    transform: scale(1.1);
+  }
+
+  .trust-badge__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .trust-badge__content {
+    flex: 1;
+  }
+
+  .trust-badge__title {
+    font-family: 'Teko', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    color: var(--c-text-main);
+  }
+
+  .trust-badge__subtitle {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--c-text-dim);
+    margin: 0;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Trust Badges",
+  "tag": "section",
+  "class": "trust-badges-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section title",
+      "default": "Why Choose Machinist"
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "Background style",
+      "options": [
+        { "value": "light", "label": "Light" },
+        { "value": "white", "label": "White" },
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "dark", "label": "Dark" }
+      ],
+      "default": "light"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Badge",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "shield-check", "label": "Shield Check" },
+            { "value": "flag", "label": "Flag (USA)" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "phone", "label": "Phone" },
+            { "value": "clock", "label": "Clock" },
+            { "value": "award", "label": "Award" },
+            { "value": "star", "label": "Star" },
+            { "value": "check-circle", "label": "Check Circle" },
+            { "value": "tool", "label": "Tool" },
+            { "value": "cog", "label": "Cog" },
+            { "value": "droplet", "label": "Droplet" },
+            { "value": "trending-up", "label": "Trending Up" }
+          ],
+          "default": "shield-check"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Industrial Grade"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Built for precision manufacturing"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust Badges",
+      "blocks": [
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "shield-check",
+            "title": "Industrial Grade",
+            "subtitle": "Built for precision manufacturing"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "flag",
+            "title": "Made in USA",
+            "subtitle": "American engineering since 1994"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "truck",
+            "title": "Fast Shipping",
+            "subtitle": "Most orders ship same day"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "phone",
+            "title": "Expert Support",
+            "subtitle": "Real engineers, real answers"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

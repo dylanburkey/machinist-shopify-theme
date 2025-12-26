@@ -1,0 +1,2342 @@
+{%- comment -%}
+  Enhanced Shoppable Image - Interactive product hotspots with multiple marker types
+
+  Hotspot Types:
+  1. Product Hotspot - Standard product card popup (orange)
+  2. Info Hotspot - Hover content circles that display text/info (green)
+  3. Parts/Accessories - Numbered markers for parts diagrams (orange)
+  4. Information Pointer - Click to display text box with unique styling (blue)
+  5. Product Highlights - Click to display small product card with highlight color (teal)
+
+  @example
+  {% section 'shoppable-image-enhanced' %}
+{%- endcomment -%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --hotspot-size: {{ section.settings.hotspot_size }}px;
+    --hotspot-color: {{ section.settings.hotspot_color }};
+    --hotspot-pulse-color: {{ section.settings.hotspot_pulse_color }};
+    --info-hotspot-color: {{ section.settings.info_hotspot_color }};
+    --parts-hotspot-color: {{ section.settings.parts_hotspot_color }};
+    --information-pointer-color: {{ section.settings.information_pointer_color }};
+    --highlight-pointer-color: {{ section.settings.highlight_pointer_color }};
+    --card-bg: {{ section.settings.card_background }};
+    --card-width: {{ section.settings.card_width }}px;
+  }
+{%- endstyle -%}
+
+<section class="shoppable-enhanced section" data-section-id="{{ section.id }}">
+  <div class="container">
+    {%- if section.settings.title != blank -%}
+      <header class="shoppable-enhanced__header">
+        {%- if section.settings.subtitle != blank -%}
+          <p class="shoppable-enhanced__subtitle">{{ section.settings.subtitle }}</p>
+        {%- endif -%}
+        <h2 class="shoppable-enhanced__title">{{ section.settings.title }}</h2>
+        {%- if section.settings.description != blank -%}
+          <p class="shoppable-enhanced__description">{{ section.settings.description }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="shoppable-enhanced__wrapper">
+      <div class="shoppable-enhanced__container" data-hotspot-container>
+        {%- if section.settings.image != blank -%}
+          <img
+            src="{{ section.settings.image | image_url: width: 1600 }}"
+            alt="{{ section.settings.image.alt | escape }}"
+            loading="lazy"
+            width="{{ section.settings.image.width }}"
+            height="{{ section.settings.image.height }}"
+            class="shoppable-enhanced__image"
+          >
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'shoppable-enhanced__placeholder' }}
+        {%- endif -%}
+
+        {%- comment -%} Render all hotspots {%- endcomment -%}
+        {%- assign part_number = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- comment -%} ========== PRODUCT HOTSPOT ========== {%- endcomment -%}
+            {%- when 'product_hotspot' -%}
+              {%- assign product = block.settings.product -%}
+              <div
+                class="hotspot hotspot--product hotspot--3d"
+                style="top: {{ block.settings.position_y }}%; left: {{ block.settings.position_x }}%;"
+                data-hotspot-x="{{ block.settings.position_x }}"
+                data-hotspot-y="{{ block.settings.position_y }}"
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  type="button"
+                  class="hotspot__trigger hotspot__trigger--3d"
+                  aria-expanded="false"
+                  aria-controls="hotspot-card-{{ block.id }}"
+                  aria-label="{% if product != blank %}{{ product.title }}{% else %}Product details{% endif %}"
+                  data-hotspot-trigger
+                >
+                  <span class="hotspot__dot hotspot__dot--3d"></span>
+                  <span class="hotspot__pulse"></span>
+                  <span class="hotspot__ring"></span>
+                </button>
+
+                <div
+                  id="hotspot-card-{{ block.id }}"
+                  class="hotspot__card"
+                  data-card-position="{{ block.settings.card_position }}"
+                  data-hotspot-card
+                >
+                  <div class="hotspot__card-arrow" data-card-arrow></div>
+                  {%- if product != blank -%}
+                    <a href="{{ product.url }}" class="hotspot__product">
+                      {%- if product.featured_image != blank -%}
+                        <div class="hotspot__product-image">
+                          <img
+                            src="{{ product.featured_image | image_url: width: 400 }}"
+                            alt="{{ product.featured_image.alt | escape }}"
+                            loading="lazy"
+                            width="200"
+                            height="200"
+                          >
+                        </div>
+                      {%- endif -%}
+                      <div class="hotspot__product-info">
+                        <h4 class="hotspot__product-title">{{ product.title }}</h4>
+                        {%- if block.settings.show_vendor and product.vendor != blank -%}
+                          <p class="hotspot__product-vendor">{{ product.vendor }}</p>
+                        {%- endif -%}
+                        <div class="hotspot__product-price">
+                          {%- if product.compare_at_price > product.price -%}
+                            <span class="hotspot__price hotspot__price--sale">{{ product.price | money }}</span>
+                            <span class="hotspot__price hotspot__price--compare">{{ product.compare_at_price | money }}</span>
+                          {%- else -%}
+                            <span class="hotspot__price">{{ product.price | money }}</span>
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    </a>
+                    {%- if block.settings.show_quick_add and product.available -%}
+                      {%- if product.variants.size == 1 -%}
+                        <form action="{{ routes.cart_add_url }}" method="post" class="hotspot__form">
+                          <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+                          <button type="submit" class="btn btn--small hotspot__add-btn">
+                            ADD TO CART
+                          </button>
+                        </form>
+                      {%- else -%}
+                        <a href="{{ product.url }}" class="btn btn--outline btn--small hotspot__add-btn">
+                          VIEW OPTIONS
+                        </a>
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- else -%}
+                    <div class="hotspot__empty">
+                      <p>SELECT PRODUCT</p>
+                    </div>
+                  {%- endif -%}
+                  <button type="button" class="hotspot__close" aria-label="Close" data-hotspot-close>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+            {%- comment -%} ========== INFO HOTSPOT (Hover Content) ========== {%- endcomment -%}
+            {%- when 'info_hotspot' -%}
+              <div
+                class="hotspot hotspot--info hotspot--3d"
+                style="top: {{ block.settings.position_y }}%; left: {{ block.settings.position_x }}%;"
+                data-hotspot-x="{{ block.settings.position_x }}"
+                data-hotspot-y="{{ block.settings.position_y }}"
+                {{ block.shopify_attributes }}
+                data-hotspot-info
+              >
+                <button
+                  type="button"
+                  class="hotspot__trigger hotspot__trigger--info hotspot__trigger--3d"
+                  aria-expanded="false"
+                  aria-label="{{ block.settings.title }}"
+                  data-info-trigger
+                >
+                  {%- if block.settings.icon == 'info' -%}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                  {%- elsif block.settings.icon == 'help' -%}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  {%- elsif block.settings.icon == 'star' -%}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  {%- else -%}
+                    <span class="hotspot__dot hotspot__dot--info hotspot__dot--3d"></span>
+                  {%- endif -%}
+                  <span class="hotspot__ring hotspot__ring--info"></span>
+                </button>
+
+                <div class="hotspot__info-bubble" data-card-position="{{ block.settings.bubble_position }}" data-info-bubble>
+                  <div class="hotspot__card-arrow" data-card-arrow></div>
+                  {%- if block.settings.title != blank -%}
+                    <h5 class="hotspot__info-title">{{ block.settings.title }}</h5>
+                  {%- endif -%}
+                  {%- if block.settings.content != blank -%}
+                    <p class="hotspot__info-content">{{ block.settings.content }}</p>
+                  {%- endif -%}
+                  {%- if block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="hotspot__info-link">
+                      {{ block.settings.link_text | default: 'Learn more' }}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            {%- comment -%} ========== PARTS/ACCESSORIES HOTSPOT ========== {%- endcomment -%}
+            {%- when 'parts_hotspot' -%}
+              {%- assign part_number = part_number | plus: 1 -%}
+              {%- assign product = block.settings.product -%}
+              <div
+                class="hotspot hotspot--parts hotspot--3d"
+                style="top: {{ block.settings.position_y }}%; left: {{ block.settings.position_x }}%;"
+                data-hotspot-x="{{ block.settings.position_x }}"
+                data-hotspot-y="{{ block.settings.position_y }}"
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  type="button"
+                  class="hotspot__trigger hotspot__trigger--parts hotspot__trigger--3d"
+                  aria-expanded="false"
+                  aria-controls="parts-card-{{ block.id }}"
+                  aria-label="Part {{ block.settings.part_number | default: part_number }}: {{ block.settings.part_name | default: product.title }}"
+                  data-parts-trigger
+                >
+                  <span class="hotspot__number">{{ block.settings.part_number | default: part_number }}</span>
+                  <span class="hotspot__ring hotspot__ring--parts"></span>
+                </button>
+
+                <div
+                  id="parts-card-{{ block.id }}"
+                  class="hotspot__parts-card"
+                  data-card-position="{{ block.settings.card_position }}"
+                  data-parts-card
+                >
+                  <div class="hotspot__card-arrow hotspot__card-arrow--parts" data-card-arrow></div>
+                  <div class="hotspot__parts-header">
+                    <span class="hotspot__parts-number">{{ block.settings.part_number | default: part_number }}</span>
+                    <div class="hotspot__parts-title-wrap">
+                      <h5 class="hotspot__parts-title">{{ block.settings.part_name | default: 'Part Name' }}</h5>
+                      {%- if block.settings.part_sku != blank -%}
+                        <span class="hotspot__parts-sku">SKU: {{ block.settings.part_sku }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- if block.settings.part_description != blank -%}
+                    <p class="hotspot__parts-desc">{{ block.settings.part_description }}</p>
+                  {%- endif -%}
+
+                  {%- if product != blank -%}
+                    <div class="hotspot__parts-product">
+                      <div class="hotspot__parts-price">
+                        {%- if product.available -%}
+                          <span class="hotspot__parts-availability hotspot__parts-availability--in">IN STOCK</span>
+                        {%- else -%}
+                          <span class="hotspot__parts-availability hotspot__parts-availability--out">OUT OF STOCK</span>
+                        {%- endif -%}
+                        <span class="hotspot__parts-price-value">{{ product.price | money }}</span>
+                      </div>
+                      <a href="{{ product.url }}" class="btn btn--small hotspot__parts-btn">
+                        VIEW PART
+                      </a>
+                    </div>
+                  {%- elsif block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="btn btn--small btn--outline hotspot__parts-btn">
+                      {{ block.settings.link_text | default: 'View Details' }}
+                    </a>
+                  {%- endif -%}
+
+                  <button type="button" class="hotspot__close" aria-label="Close" data-hotspot-close>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+            {%- comment -%} ========== INFORMATION POINTER (Blue) ========== {%- endcomment -%}
+            {%- when 'information_pointer' -%}
+              <div
+                class="hotspot hotspot--information hotspot--3d"
+                style="top: {{ block.settings.position_y }}%; left: {{ block.settings.position_x }}%;"
+                data-hotspot-x="{{ block.settings.position_x }}"
+                data-hotspot-y="{{ block.settings.position_y }}"
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  type="button"
+                  class="hotspot__trigger hotspot__trigger--information hotspot__trigger--3d"
+                  aria-expanded="false"
+                  aria-controls="info-pointer-{{ block.id }}"
+                  aria-label="{{ block.settings.title | default: 'Information' }}"
+                  data-hotspot-trigger
+                >
+                  <span class="hotspot__icon-info">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <circle cx="12" cy="8" r="1" fill="currentColor"></circle>
+                    </svg>
+                  </span>
+                  <span class="hotspot__pulse hotspot__pulse--information"></span>
+                  <span class="hotspot__ring hotspot__ring--information"></span>
+                </button>
+
+                <div
+                  id="info-pointer-{{ block.id }}"
+                  class="hotspot__textbox"
+                  data-card-position="{{ block.settings.card_position }}"
+                  data-hotspot-card
+                >
+                  <div class="hotspot__card-arrow hotspot__card-arrow--information" data-card-arrow></div>
+                  <div class="hotspot__textbox-content">
+                    {%- if block.settings.title != blank -%}
+                      <h5 class="hotspot__textbox-title">{{ block.settings.title }}</h5>
+                    {%- endif -%}
+                    {%- if block.settings.content != blank -%}
+                      <div class="hotspot__textbox-body">{{ block.settings.content }}</div>
+                    {%- endif -%}
+                    {%- if block.settings.link != blank -%}
+                      <a href="{{ block.settings.link }}" class="hotspot__textbox-link">
+                        {{ block.settings.link_text | default: 'Learn more' }}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                      </a>
+                    {%- endif -%}
+                  </div>
+                  <button type="button" class="hotspot__close hotspot__close--textbox" aria-label="Close" data-hotspot-close>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+            {%- comment -%} ========== PRODUCT HIGHLIGHTS POINTER (Teal) ========== {%- endcomment -%}
+            {%- when 'highlight_pointer' -%}
+              {%- assign product = block.settings.product -%}
+              <div
+                class="hotspot hotspot--highlight hotspot--3d"
+                style="top: {{ block.settings.position_y }}%; left: {{ block.settings.position_x }}%;"
+                data-hotspot-x="{{ block.settings.position_x }}"
+                data-hotspot-y="{{ block.settings.position_y }}"
+                {{ block.shopify_attributes }}
+              >
+                <button
+                  type="button"
+                  class="hotspot__trigger hotspot__trigger--highlight hotspot__trigger--3d"
+                  aria-expanded="false"
+                  aria-controls="highlight-card-{{ block.id }}"
+                  aria-label="{% if product != blank %}{{ product.title }}{% else %}{{ block.settings.highlight_title | default: 'Product Highlight' }}{% endif %}"
+                  data-hotspot-trigger
+                >
+                  <span class="hotspot__icon-highlight">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </span>
+                  <span class="hotspot__pulse hotspot__pulse--highlight"></span>
+                  <span class="hotspot__ring hotspot__ring--highlight"></span>
+                </button>
+
+                <div
+                  id="highlight-card-{{ block.id }}"
+                  class="hotspot__highlight-card"
+                  data-card-position="{{ block.settings.card_position }}"
+                  data-hotspot-card
+                >
+                  <div class="hotspot__card-arrow hotspot__card-arrow--highlight" data-card-arrow></div>
+                  {%- if block.settings.highlight_label != blank -%}
+                    <div class="hotspot__highlight-badge">{{ block.settings.highlight_label }}</div>
+                  {%- endif -%}
+                  {%- if product != blank -%}
+                    <a href="{{ product.url }}" class="hotspot__highlight-product">
+                      {%- if product.featured_image != blank -%}
+                        <div class="hotspot__highlight-image">
+                          <img
+                            src="{{ product.featured_image | image_url: width: 240 }}"
+                            alt="{{ product.featured_image.alt | escape }}"
+                            loading="lazy"
+                            width="120"
+                            height="120"
+                          >
+                        </div>
+                      {%- endif -%}
+                      <div class="hotspot__highlight-info">
+                        <h5 class="hotspot__highlight-title">{{ product.title }}</h5>
+                        <div class="hotspot__highlight-price">
+                          {%- if product.compare_at_price > product.price -%}
+                            <span class="hotspot__price hotspot__price--sale">{{ product.price | money }}</span>
+                            <span class="hotspot__price hotspot__price--compare">{{ product.compare_at_price | money }}</span>
+                          {%- else -%}
+                            <span class="hotspot__price">{{ product.price | money }}</span>
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    </a>
+                    {%- if block.settings.show_quick_add and product.available -%}
+                      {%- if product.variants.size == 1 -%}
+                        <form action="{{ routes.cart_add_url }}" method="post" class="hotspot__highlight-form">
+                          <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+                          <button type="submit" class="btn btn--small btn--highlight hotspot__highlight-btn">
+                            ADD TO CART
+                          </button>
+                        </form>
+                      {%- else -%}
+                        <a href="{{ product.url }}" class="btn btn--small btn--highlight-outline hotspot__highlight-btn">
+                          VIEW OPTIONS
+                        </a>
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- else -%}
+                    <div class="hotspot__highlight-custom">
+                      {%- if block.settings.highlight_title != blank -%}
+                        <h5 class="hotspot__highlight-title">{{ block.settings.highlight_title }}</h5>
+                      {%- endif -%}
+                      {%- if block.settings.highlight_description != blank -%}
+                        <p class="hotspot__highlight-desc">{{ block.settings.highlight_description }}</p>
+                      {%- endif -%}
+                      {%- if block.settings.link != blank -%}
+                        <a href="{{ block.settings.link }}" class="btn btn--small btn--highlight hotspot__highlight-btn">
+                          {{ block.settings.link_text | default: 'Learn More' }}
+                        </a>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                  <button type="button" class="hotspot__close" aria-label="Close" data-hotspot-close>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Parts Legend (if there are parts hotspots) {%- endcomment -%}
+      {%- assign has_parts = false -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'parts_hotspot' -%}
+          {%- assign has_parts = true -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if has_parts and section.settings.show_parts_legend -%}
+        <aside class="shoppable-enhanced__legend">
+          <h3 class="legend__title">{{ section.settings.legend_title | default: 'PARTS LIST' }}</h3>
+          <ol class="legend__list">
+            {%- assign legend_number = 0 -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'parts_hotspot' -%}
+                {%- assign legend_number = legend_number | plus: 1 -%}
+                {%- assign product = block.settings.product -%}
+                <li class="legend__item">
+                  <span class="legend__number">{{ block.settings.part_number | default: legend_number }}</span>
+                  <div class="legend__info">
+                    <span class="legend__name">{{ block.settings.part_name | default: 'Part Name' }}</span>
+                    {%- if block.settings.part_sku != blank -%}
+                      <span class="legend__sku">{{ block.settings.part_sku }}</span>
+                    {%- endif -%}
+                  </div>
+                  {%- if product != blank -%}
+                    <span class="legend__price">{{ product.price | money }}</span>
+                    <a href="{{ product.url }}" class="legend__link" aria-label="View {{ block.settings.part_name }}">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </a>
+                  {%- endif -%}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ol>
+        </aside>
+      {%- endif -%}
+
+      {%- comment -%} Product List Sidebar {%- endcomment -%}
+      {%- if section.settings.show_product_list -%}
+        <aside class="shoppable-enhanced__sidebar">
+          <h3 class="sidebar__title">{{ section.settings.sidebar_title | default: 'FEATURED PRODUCTS' }}</h3>
+          <ul class="sidebar__list" role="list">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'product_hotspot' or block.type == 'highlight_pointer' -%}
+                {%- assign product = block.settings.product -%}
+                {%- if product != blank -%}
+                  <li class="sidebar__item">
+                    <a href="{{ product.url }}" class="sidebar__product">
+                      {%- if product.featured_image != blank -%}
+                        <div class="sidebar__image">
+                          <img
+                            src="{{ product.featured_image | image_url: width: 160 }}"
+                            alt="{{ product.featured_image.alt | escape }}"
+                            loading="lazy"
+                            width="80"
+                            height="80"
+                          >
+                        </div>
+                      {%- endif -%}
+                      <div class="sidebar__info">
+                        <span class="sidebar__name">{{ product.title }}</span>
+                        <span class="sidebar__price">{{ product.price | money }}</span>
+                      </div>
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </aside>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============================================
+     MACHINIST THEME - SHOPPABLE IMAGE STYLES
+     ============================================ */
+  .shoppable-enhanced {
+    background: var(--c-bg);
+    padding: calc(var(--pad) * 3) 0;
+  }
+
+  .shoppable-enhanced__header {
+    text-align: center;
+    margin-bottom: calc(var(--pad) * 2);
+  }
+
+  .shoppable-enhanced__subtitle {
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--c-accent);
+    margin: 0 0 8px;
+  }
+
+  .shoppable-enhanced__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 12px;
+    color: var(--c-text-main);
+  }
+
+  .shoppable-enhanced__description {
+    max-width: 600px;
+    margin: 0 auto;
+    color: var(--c-text-dim);
+    font-family: var(--font-body);
+  }
+
+  .shoppable-enhanced__wrapper {
+    display: grid;
+    gap: var(--pad);
+  }
+
+  @media (min-width: 1024px) {
+    .shoppable-enhanced__wrapper {
+      grid-template-columns: 1fr 280px;
+    }
+  }
+
+  .shoppable-enhanced__container {
+    position: relative;
+    border: var(--grid-gap) solid var(--c-border);
+    overflow: visible;
+    background: var(--c-panel);
+  }
+
+  .shoppable-enhanced__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .shoppable-enhanced__container:hover .shoppable-enhanced__image {
+    filter: none;
+  }
+
+  .shoppable-enhanced__placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--c-panel);
+  }
+
+  /* ============================================
+     BASE HOTSPOT STYLES
+     ============================================ */
+  .hotspot {
+    position: absolute;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+  }
+
+  .hotspot__trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--hotspot-size, 32px);
+    height: var(--hotspot-size, 32px);
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ============================================
+     3D EFFECT STYLES
+     ============================================ */
+  .hotspot__trigger--3d {
+    perspective: 100px;
+    transform-style: preserve-3d;
+  }
+
+  .hotspot__dot--3d {
+    position: absolute;
+    inset: 0;
+    background: var(--hotspot-color, var(--c-accent));
+    border: 2px solid var(--c-bg);
+    border-radius: 50%;
+    box-shadow:
+      0 4px 12px rgba(255, 77, 0, 0.4),
+      0 2px 4px rgba(0,0,0,0.2),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    transform: translateZ(0);
+  }
+
+  .hotspot__trigger--3d:hover .hotspot__dot--3d,
+  .hotspot__trigger--3d[aria-expanded="true"] .hotspot__dot--3d {
+    transform: translateZ(8px) scale(1.1);
+    box-shadow:
+      0 8px 20px rgba(255, 77, 0, 0.5),
+      0 4px 8px rgba(0,0,0,0.25),
+      inset 0 2px 4px rgba(255,255,255,0.15),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+
+  .hotspot__ring {
+    position: absolute;
+    inset: -4px;
+    border: 2px solid var(--hotspot-color, var(--c-accent));
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .hotspot__trigger--3d:hover .hotspot__ring,
+  .hotspot__trigger--3d[aria-expanded="true"] .hotspot__ring {
+    opacity: 0.6;
+    transform: scale(1.3);
+  }
+
+  .hotspot__pulse {
+    position: absolute;
+    inset: -6px;
+    background: var(--hotspot-pulse-color, var(--c-accent));
+    border-radius: 50%;
+    opacity: 0;
+    animation: hotspot-pulse 2s infinite;
+  }
+
+  @keyframes hotspot-pulse {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  .hotspot__trigger:hover .hotspot__pulse {
+    animation: none;
+    opacity: 0;
+  }
+
+  /* ============================================
+     CARD ARROW (Pointer)
+     ============================================ */
+  .hotspot__card-arrow {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--card-bg, var(--c-panel));
+    border: 1px solid var(--c-border);
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+
+  /* ============================================
+     SMART CARD POSITIONING
+     ============================================ */
+  .hotspot__card,
+  .hotspot__parts-card,
+  .hotspot__info-bubble,
+  .hotspot__textbox,
+  .hotspot__highlight-card {
+    position: absolute;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .hotspot__card.is-open,
+  .hotspot__parts-card.is-open,
+  .hotspot__info-bubble.is-open,
+  .hotspot__textbox.is-open,
+  .hotspot__highlight-card.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Info bubble hover behavior */
+  .hotspot--info:hover .hotspot__info-bubble,
+  .hotspot--info:focus-within .hotspot__info-bubble {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* ============================================
+     PRODUCT HOTSPOT CARD
+     ============================================ */
+  .hotspot__card {
+    width: var(--card-width, 260px);
+    background: var(--card-bg, var(--c-panel));
+    border: var(--grid-gap) solid var(--c-border);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+    overflow: visible;
+  }
+
+  .hotspot__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    padding: 6px;
+    background: rgba(10,10,10,0.8);
+    border: 1px solid var(--c-border);
+    border-radius: 0;
+    color: var(--c-text-dim);
+    opacity: 0.8;
+    cursor: pointer;
+    transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+    z-index: 5;
+  }
+
+  .hotspot__close:hover {
+    opacity: 1;
+    background: var(--c-bg);
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  .hotspot__product {
+    display: block;
+    padding: var(--pad);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .hotspot__product-image {
+    aspect-ratio: 1;
+    overflow: hidden;
+    margin-bottom: 12px;
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+  }
+
+  .hotspot__product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .hotspot__product:hover .hotspot__product-image img {
+    filter: none;
+  }
+
+  .hotspot__product-info { text-align: center; }
+
+  .hotspot__product-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    color: var(--c-text-main);
+  }
+
+  .hotspot__product-vendor {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--c-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hotspot__product-price {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  .hotspot__price--sale { color: var(--c-accent); font-weight: 600; }
+  .hotspot__price--compare { text-decoration: line-through; opacity: 0.5; }
+
+  .hotspot__form { padding: 0 var(--pad) var(--pad); }
+  .hotspot__add-btn {
+    width: 100%;
+    font-size: 11px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hotspot__empty {
+    padding: calc(var(--pad) * 2);
+    text-align: center;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c-text-dim);
+    font-size: 12px;
+  }
+
+  /* ============================================
+     INFO HOTSPOT (Hover Bubble)
+     ============================================ */
+  .hotspot--info .hotspot__trigger--info {
+    background: var(--info-hotspot-color, #10b981);
+    color: #fff;
+    border: 2px solid var(--c-bg);
+    border-radius: 50%;
+    box-shadow:
+      0 4px 12px rgba(16, 185, 129, 0.4),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .hotspot--info .hotspot__trigger--info:hover {
+    transform: translateZ(6px) scale(1.1);
+    box-shadow:
+      0 8px 20px rgba(16, 185, 129, 0.5),
+      inset 0 2px 4px rgba(255,255,255,0.15),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+
+  .hotspot__ring--info {
+    border-color: var(--info-hotspot-color, #10b981);
+  }
+
+  .hotspot__dot--info {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: none;
+    box-shadow: none;
+  }
+
+  .hotspot__info-bubble {
+    width: 240px;
+    padding: var(--pad);
+    background: var(--card-bg, var(--c-panel));
+    border: var(--grid-gap) solid var(--c-border);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .hotspot__info-title {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--c-text-main);
+  }
+
+  .hotspot__info-content {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--c-text-dim);
+    font-family: var(--font-body);
+  }
+
+  .hotspot__info-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--info-hotspot-color, #10b981);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .hotspot__info-link:hover {
+    color: var(--c-accent);
+  }
+
+  /* ============================================
+     PARTS/ACCESSORIES HOTSPOT
+     ============================================ */
+  .hotspot--parts .hotspot__trigger--parts {
+    width: 30px;
+    height: 30px;
+    background: var(--parts-hotspot-color, var(--c-accent));
+    border: 2px solid var(--c-bg);
+    border-radius: 50%;
+    box-shadow:
+      0 4px 12px rgba(255, 77, 0, 0.4),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      inset 0 -2px 4px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+  }
+
+  .hotspot--parts .hotspot__trigger--parts:hover {
+    transform: translateZ(6px) scale(1.15);
+  }
+
+  .hotspot__ring--parts {
+    border-color: var(--parts-hotspot-color, var(--c-accent));
+  }
+
+  .hotspot__number {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--c-bg);
+    text-shadow: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hotspot__parts-card {
+    width: 280px;
+    background: var(--card-bg, var(--c-panel));
+    border: var(--grid-gap) solid var(--c-border);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+
+  .hotspot__card-arrow--parts {
+    background: var(--parts-hotspot-color, var(--c-accent));
+    border-color: var(--parts-hotspot-color, var(--c-accent));
+  }
+
+  .hotspot__parts-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px var(--pad);
+    background: var(--parts-hotspot-color, var(--c-accent));
+    color: var(--c-bg);
+    border-bottom: var(--grid-gap) solid var(--c-bg);
+  }
+
+  .hotspot__parts-number {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    background: rgba(10,10,10,0.3);
+    border: 1px solid rgba(10,10,10,0.3);
+    border-radius: 0;
+  }
+
+  .hotspot__parts-title-wrap { flex: 1; min-width: 0; }
+
+  .hotspot__parts-title {
+    margin: 0 0 2px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+  }
+
+  .hotspot__parts-sku {
+    font-size: 10px;
+    font-family: 'Source Code Pro', monospace;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hotspot__parts-desc {
+    margin: 0;
+    padding: 12px var(--pad);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--c-text-dim);
+    border-bottom: 1px solid var(--c-border);
+    font-family: var(--font-body);
+  }
+
+  .hotspot__parts-product {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px var(--pad);
+  }
+
+  .hotspot__parts-price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hotspot__parts-availability {
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'Source Code Pro', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hotspot__parts-availability--in { color: #10b981; }
+  .hotspot__parts-availability--out { color: var(--c-accent); }
+
+  .hotspot__parts-price-value {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--c-text-main);
+  }
+
+  .hotspot__parts-btn {
+    flex-shrink: 0;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 10px;
+  }
+
+  .hotspot__parts-card .hotspot__close {
+    top: 10px;
+    right: 10px;
+    background: rgba(10,10,10,0.5);
+    color: var(--c-bg);
+    border-color: rgba(10,10,10,0.3);
+    opacity: 0.9;
+  }
+
+  .hotspot__parts-card .hotspot__close:hover {
+    background: rgba(10,10,10,0.8);
+    opacity: 1;
+    border-color: var(--c-bg);
+  }
+
+  /* ============================================
+     INFORMATION POINTER (Blue)
+     ============================================ */
+  .hotspot--information .hotspot__trigger--information {
+    width: 36px;
+    height: 36px;
+    background: var(--information-pointer-color, #334FB4);
+    border: 2px solid var(--c-bg);
+    border-radius: 50%;
+    box-shadow:
+      0 4px 16px rgba(51, 79, 180, 0.4),
+      0 2px 8px rgba(0,0,0,0.2),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .hotspot--information .hotspot__trigger--information:hover,
+  .hotspot--information .hotspot__trigger--information[aria-expanded="true"] {
+    transform: translateZ(8px) scale(1.1);
+    box-shadow:
+      0 8px 24px rgba(51, 79, 180, 0.5),
+      0 4px 12px rgba(0,0,0,0.25),
+      inset 0 2px 4px rgba(255,255,255,0.15),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+
+  .hotspot__icon-info {
+    color: #fff;
+    display: flex;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hotspot__pulse--information {
+    background: var(--information-pointer-color, #334FB4);
+  }
+
+  .hotspot__ring--information {
+    border-color: var(--information-pointer-color, #334FB4);
+  }
+
+  .hotspot__textbox {
+    width: 280px;
+    background: var(--card-bg, var(--c-panel));
+    border: var(--grid-gap) solid var(--c-border);
+    box-shadow: 0 12px 40px rgba(51, 79, 180, 0.3), 0 4px 12px rgba(0,0,0,0.2);
+    overflow: visible;
+  }
+
+  .hotspot__card-arrow--information {
+    background: var(--card-bg, var(--c-panel));
+    border-color: var(--c-border);
+  }
+
+  .hotspot__textbox-content {
+    padding: var(--pad);
+  }
+
+  .hotspot__textbox-title {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--information-pointer-color, #334FB4);
+  }
+
+  .hotspot__textbox-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--c-text-dim);
+    font-family: var(--font-body);
+  }
+
+  .hotspot__textbox-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c-bg);
+    background: var(--information-pointer-color, #334FB4);
+    border: 1px solid var(--information-pointer-color, #334FB4);
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .hotspot__textbox-link:hover {
+    background: transparent;
+    color: var(--information-pointer-color, #334FB4);
+  }
+
+  .hotspot__close--textbox {
+    top: 12px;
+    right: 12px;
+    background: rgba(51, 79, 180, 0.1);
+    color: var(--information-pointer-color, #334FB4);
+    border-color: rgba(51, 79, 180, 0.2);
+  }
+
+  .hotspot__close--textbox:hover {
+    background: rgba(51, 79, 180, 0.2);
+    border-color: var(--information-pointer-color, #334FB4);
+  }
+
+  /* ============================================
+     PRODUCT HIGHLIGHTS POINTER (Teal)
+     ============================================ */
+  .hotspot--highlight .hotspot__trigger--highlight {
+    width: 38px;
+    height: 38px;
+    background: var(--highlight-pointer-color, #14b8a6);
+    border: 2px solid var(--c-bg);
+    border-radius: 50%;
+    box-shadow:
+      0 4px 16px rgba(20, 184, 166, 0.4),
+      0 2px 8px rgba(0,0,0,0.2),
+      inset 0 2px 4px rgba(255,255,255,0.1),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .hotspot--highlight .hotspot__trigger--highlight:hover,
+  .hotspot--highlight .hotspot__trigger--highlight[aria-expanded="true"] {
+    transform: translateZ(8px) scale(1.1) rotate(15deg);
+    box-shadow:
+      0 8px 24px rgba(20, 184, 166, 0.5),
+      0 4px 12px rgba(0,0,0,0.25),
+      inset 0 2px 4px rgba(255,255,255,0.15),
+      inset 0 -2px 4px rgba(0,0,0,0.2);
+  }
+
+  .hotspot__icon-highlight {
+    color: #fff;
+    display: flex;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hotspot__pulse--highlight {
+    background: var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .hotspot__ring--highlight {
+    border-color: var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .hotspot__highlight-card {
+    width: 200px;
+    background: var(--card-bg, var(--c-panel));
+    border: var(--grid-gap) solid var(--c-border);
+    box-shadow: 0 12px 40px rgba(20, 184, 166, 0.3), 0 4px 12px rgba(0,0,0,0.2);
+    overflow: visible;
+  }
+
+  .hotspot__card-arrow--highlight {
+    background: var(--highlight-pointer-color, #14b8a6);
+    border-color: var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .hotspot__highlight-badge {
+    padding: 6px 12px;
+    background: var(--highlight-pointer-color, #14b8a6);
+    color: var(--c-bg);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+    border-bottom: var(--grid-gap) solid var(--c-border);
+  }
+
+  .hotspot__highlight-product {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .hotspot__highlight-image {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+  }
+
+  .hotspot__highlight-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .hotspot__highlight-product:hover .hotspot__highlight-image img {
+    filter: none;
+  }
+
+  .hotspot__highlight-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .hotspot__highlight-title {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    color: var(--c-text-main);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hotspot__highlight-price {
+    display: flex;
+    gap: 6px;
+    font-size: 12px;
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  .hotspot__highlight-form,
+  .hotspot__highlight-custom {
+    padding: 0 12px 12px;
+  }
+
+  .hotspot__highlight-custom {
+    text-align: center;
+    padding-top: 12px;
+  }
+
+  .hotspot__highlight-desc {
+    margin: 0 0 12px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--c-text-dim);
+    font-family: var(--font-body);
+  }
+
+  .hotspot__highlight-btn {
+    width: 100%;
+    font-size: 10px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .btn--highlight {
+    background: var(--highlight-pointer-color, #14b8a6);
+    color: var(--c-bg);
+    border: 1px solid var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .btn--highlight:hover {
+    background: transparent;
+    color: var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .btn--highlight-outline {
+    background: transparent;
+    color: var(--highlight-pointer-color, #14b8a6);
+    border: 1px solid var(--highlight-pointer-color, #14b8a6);
+  }
+
+  .btn--highlight-outline:hover {
+    background: var(--highlight-pointer-color, #14b8a6);
+    color: var(--c-bg);
+  }
+
+  .hotspot__highlight-card .hotspot__close {
+    top: 6px;
+    right: 6px;
+    padding: 4px;
+  }
+
+  /* ============================================
+     PARTS LEGEND
+     ============================================ */
+  .shoppable-enhanced__legend {
+    background: var(--c-panel);
+    border: var(--grid-gap) solid var(--c-border);
+    padding: var(--pad);
+  }
+
+  .legend__title {
+    font-size: 15px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 var(--pad);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text-main);
+  }
+
+  .legend__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: none;
+  }
+
+  .legend__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--c-border);
+  }
+
+  .legend__item:last-child { border-bottom: none; }
+
+  .legend__number {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    background: var(--parts-hotspot-color, var(--c-accent));
+    color: var(--c-bg);
+    border-radius: 0;
+  }
+
+  .legend__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .legend__name {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    color: var(--c-text-main);
+  }
+
+  .legend__sku {
+    display: block;
+    font-size: 10px;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--c-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .legend__price {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--c-accent);
+  }
+
+  .legend__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--c-text-dim);
+    border: 1px solid var(--c-border);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .legend__link:hover {
+    background: var(--c-accent);
+    border-color: var(--c-accent);
+    color: var(--c-bg);
+  }
+
+  /* ============================================
+     SIDEBAR (Product List)
+     ============================================ */
+  .shoppable-enhanced__sidebar {
+    background: var(--c-panel);
+    border: var(--grid-gap) solid var(--c-border);
+    padding: var(--pad);
+  }
+
+  .sidebar__title {
+    font-size: 15px;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 var(--pad);
+    color: var(--c-text-main);
+  }
+
+  .sidebar__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar__item + .sidebar__item {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--c-border);
+  }
+
+  .sidebar__product {
+    display: flex;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s;
+  }
+
+  .sidebar__product:hover {
+    opacity: 0.8;
+  }
+
+  .sidebar__image {
+    flex-shrink: 0;
+    width: 60px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+  }
+
+  .sidebar__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .sidebar__product:hover .sidebar__image img {
+    filter: none;
+  }
+
+  .sidebar__info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .sidebar__name {
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    color: var(--c-text-main);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .sidebar__price {
+    font-size: 12px;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--c-text-dim);
+  }
+
+  /* ============================================
+     MOBILE RESPONSIVE ADJUSTMENTS
+     ============================================ */
+  @media (max-width: 640px) {
+    .hotspot__card,
+    .hotspot__parts-card,
+    .hotspot__textbox,
+    .hotspot__highlight-card {
+      max-width: calc(100vw - 40px);
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    const container = section.querySelector('[data-hotspot-container]');
+    if (!container) return;
+
+    // All clickable triggers (product, parts, information, highlight)
+    const clickTriggers = section.querySelectorAll('[data-hotspot-trigger], [data-parts-trigger]');
+    let activeCard = null;
+
+    /**
+     * Smart card positioning that keeps cards within the container bounds
+     */
+    function positionCard(hotspot, card) {
+      const preferredPosition = card.dataset.cardPosition || 'bottom';
+      const arrow = card.querySelector('[data-card-arrow]');
+
+      // Reset any inline styles from previous positioning
+      card.style.cssText = '';
+      if (arrow) arrow.style.cssText = '';
+
+      // Get measurements
+      const containerRect = container.getBoundingClientRect();
+      const hotspotRect = hotspot.getBoundingClientRect();
+      const cardWidth = card.offsetWidth;
+      const cardHeight = card.offsetHeight;
+
+      // Calculate hotspot center relative to container
+      const hotspotCenterX = hotspotRect.left + hotspotRect.width / 2 - containerRect.left;
+      const hotspotCenterY = hotspotRect.top + hotspotRect.height / 2 - containerRect.top;
+
+      const gap = 14; // Space between hotspot and card
+      const edgePadding = 12; // Minimum padding from container edge
+      const arrowSize = 12; // Arrow dimensions
+
+      let cardLeft, cardTop;
+      let arrowLeft, arrowTop;
+      let finalPosition = preferredPosition;
+
+      // Calculate available space in each direction
+      const spaceAbove = hotspotCenterY - edgePadding;
+      const spaceBelow = containerRect.height - hotspotCenterY - edgePadding;
+      const spaceLeft = hotspotCenterX - edgePadding;
+      const spaceRight = containerRect.width - hotspotCenterX - edgePadding;
+
+      // Determine best position based on available space
+      function canFit(pos) {
+        switch (pos) {
+          case 'bottom': return spaceBelow >= cardHeight + gap;
+          case 'top': return spaceAbove >= cardHeight + gap;
+          case 'right': return spaceRight >= cardWidth + gap;
+          case 'left': return spaceLeft >= cardWidth + gap;
+          default: return false;
+        }
+      }
+
+      // Try preferred position first, then fallbacks
+      const positionOrder = [preferredPosition];
+      if (preferredPosition === 'bottom' || preferredPosition === 'top') {
+        positionOrder.push(preferredPosition === 'bottom' ? 'top' : 'bottom', 'right', 'left');
+      } else {
+        positionOrder.push(preferredPosition === 'right' ? 'left' : 'right', 'bottom', 'top');
+      }
+
+      for (const pos of positionOrder) {
+        if (canFit(pos)) {
+          finalPosition = pos;
+          break;
+        }
+      }
+
+      // Position the card based on final position
+      switch (finalPosition) {
+        case 'bottom':
+          cardTop = hotspotCenterY + hotspotRect.height / 2 + gap;
+          cardLeft = Math.max(edgePadding, Math.min(hotspotCenterX - cardWidth / 2, containerRect.width - cardWidth - edgePadding));
+          arrowTop = -arrowSize / 2 - 1;
+          arrowLeft = hotspotCenterX - cardLeft - arrowSize / 2;
+          break;
+
+        case 'top':
+          cardTop = hotspotCenterY - hotspotRect.height / 2 - gap - cardHeight;
+          cardLeft = Math.max(edgePadding, Math.min(hotspotCenterX - cardWidth / 2, containerRect.width - cardWidth - edgePadding));
+          arrowTop = cardHeight - arrowSize / 2 - 1;
+          arrowLeft = hotspotCenterX - cardLeft - arrowSize / 2;
+          break;
+
+        case 'right':
+          cardLeft = hotspotCenterX + hotspotRect.width / 2 + gap;
+          cardTop = Math.max(edgePadding, Math.min(hotspotCenterY - cardHeight / 2, containerRect.height - cardHeight - edgePadding));
+          arrowLeft = -arrowSize / 2 - 1;
+          arrowTop = hotspotCenterY - cardTop - arrowSize / 2;
+          break;
+
+        case 'left':
+          cardLeft = hotspotCenterX - hotspotRect.width / 2 - gap - cardWidth;
+          cardTop = Math.max(edgePadding, Math.min(hotspotCenterY - cardHeight / 2, containerRect.height - cardHeight - edgePadding));
+          arrowLeft = cardWidth - arrowSize / 2 - 1;
+          arrowTop = hotspotCenterY - cardTop - arrowSize / 2;
+          break;
+      }
+
+      // Clamp arrow position to stay within card
+      arrowLeft = Math.max(arrowSize, Math.min(arrowLeft, cardWidth - arrowSize * 2));
+      arrowTop = Math.max(arrowSize, Math.min(arrowTop, cardHeight - arrowSize * 2));
+
+      // Apply positioning
+      card.style.position = 'absolute';
+      card.style.left = `${cardLeft}px`;
+      card.style.top = `${cardTop}px`;
+      card.style.transform = 'none';
+
+      if (arrow) {
+        arrow.style.position = 'absolute';
+        arrow.style.left = `${arrowLeft}px`;
+        arrow.style.top = `${arrowTop}px`;
+      }
+    }
+
+    /**
+     * Toggle card visibility
+     */
+    function toggleCard(trigger, card, hotspot) {
+      const isOpen = card.classList.contains('is-open');
+
+      // Close any other open cards first
+      closeAllCards();
+
+      if (!isOpen && card) {
+        // Position the card smartly before showing
+        positionCard(hotspot, card);
+
+        // Show with animation
+        requestAnimationFrame(() => {
+          card.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+          activeCard = card;
+        });
+      }
+    }
+
+    /**
+     * Close all open cards
+     */
+    function closeAllCards() {
+      clickTriggers.forEach(t => {
+        const c = t.nextElementSibling;
+        if (c) {
+          c.classList.remove('is-open');
+          t.setAttribute('aria-expanded', 'false');
+        }
+      });
+      activeCard = null;
+    }
+
+    // Bind click events
+    clickTriggers.forEach(trigger => {
+      const card = trigger.nextElementSibling;
+      const hotspot = trigger.closest('.hotspot');
+      const closeBtn = card?.querySelector('[data-hotspot-close]');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCard(trigger, card, hotspot);
+      });
+
+      closeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        card.classList.remove('is-open');
+        trigger.setAttribute('aria-expanded', 'false');
+        activeCard = null;
+      });
+
+      // Keyboard support
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          card?.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          activeCard = null;
+        }
+      });
+    });
+
+    // Handle info hotspots (hover behavior with smart positioning)
+    const infoHotspots = section.querySelectorAll('[data-hotspot-info]');
+    infoHotspots.forEach(hotspot => {
+      const bubble = hotspot.querySelector('[data-info-bubble]');
+      if (!bubble) return;
+
+      let positioned = false;
+
+      function showBubble() {
+        if (!positioned) {
+          positionCard(hotspot, bubble);
+          positioned = true;
+        }
+        bubble.classList.add('is-open');
+      }
+
+      function hideBubble() {
+        bubble.classList.remove('is-open');
+      }
+
+      hotspot.addEventListener('mouseenter', showBubble);
+      hotspot.addEventListener('mouseleave', hideBubble);
+      hotspot.addEventListener('focusin', showBubble);
+      hotspot.addEventListener('focusout', hideBubble);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.hotspot') && activeCard) {
+        closeAllCards();
+      }
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activeCard) {
+        closeAllCards();
+      }
+    });
+
+    // Reposition cards on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (activeCard) {
+          const trigger = section.querySelector('[aria-expanded="true"]');
+          if (trigger) {
+            const hotspot = trigger.closest('.hotspot');
+            positionCard(hotspot, activeCard);
+          }
+        }
+      }, 100);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Shoppable Image+",
+  "tag": "section",
+  "class": "section-shoppable-enhanced",
+  "settings": [
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "PRODUCT SPECIFICATIONS"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Product Hotspot Styling"
+    },
+    {
+      "type": "range",
+      "id": "hotspot_size",
+      "label": "Hotspot size",
+      "min": 24,
+      "max": 48,
+      "step": 4,
+      "default": 32,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_color",
+      "label": "Product hotspot color",
+      "default": "#ff4d00"
+    },
+    {
+      "type": "color",
+      "id": "hotspot_pulse_color",
+      "label": "Pulse animation color",
+      "default": "#ff4d00"
+    },
+    {
+      "type": "header",
+      "content": "Info Hotspot Styling"
+    },
+    {
+      "type": "color",
+      "id": "info_hotspot_color",
+      "label": "Info hotspot color",
+      "default": "#10b981"
+    },
+    {
+      "type": "header",
+      "content": "Parts Hotspot Styling"
+    },
+    {
+      "type": "color",
+      "id": "parts_hotspot_color",
+      "label": "Parts hotspot color",
+      "default": "#ff4d00"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_parts_legend",
+      "label": "Show parts legend",
+      "default": true,
+      "info": "Display a sidebar list of all parts"
+    },
+    {
+      "type": "text",
+      "id": "legend_title",
+      "label": "Legend title",
+      "default": "PARTS LIST"
+    },
+    {
+      "type": "header",
+      "content": "Information Pointer Styling"
+    },
+    {
+      "type": "color",
+      "id": "information_pointer_color",
+      "label": "Information pointer color",
+      "default": "#334FB4",
+      "info": "Blue - used for text information popups"
+    },
+    {
+      "type": "header",
+      "content": "Product Highlights Styling"
+    },
+    {
+      "type": "color",
+      "id": "highlight_pointer_color",
+      "label": "Highlight pointer color",
+      "default": "#14b8a6",
+      "info": "Teal - used for featured product highlights"
+    },
+    {
+      "type": "header",
+      "content": "Product Card"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#141414"
+    },
+    {
+      "type": "range",
+      "id": "card_width",
+      "label": "Card width",
+      "min": 200,
+      "max": 320,
+      "step": 20,
+      "default": 260,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Product Sidebar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_list",
+      "label": "Show product list sidebar",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "sidebar_title",
+      "label": "Sidebar title",
+      "default": "FEATURED PRODUCTS"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_hotspot",
+      "name": "Product Hotspot",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "position_x",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "position_y",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "select",
+          "id": "card_position",
+          "label": "Preferred card position",
+          "options": [
+            { "value": "bottom", "label": "Below" },
+            { "value": "top", "label": "Above" },
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "bottom",
+          "info": "Card will automatically adjust if there's not enough space"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show vendor",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_quick_add",
+          "label": "Show add to cart button",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "info_hotspot",
+      "name": "Info Hotspot",
+      "settings": [
+        {
+          "type": "range",
+          "id": "position_x",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "position_y",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "dot", "label": "Dot" },
+            { "value": "info", "label": "Info (i)" },
+            { "value": "help", "label": "Help (?)" },
+            { "value": "star", "label": "Star" }
+          ],
+          "default": "info"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "TECHNICAL SPECIFICATION"
+        },
+        {
+          "type": "textarea",
+          "id": "content",
+          "label": "Content",
+          "default": "Industrial-grade specifications and technical details."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "LEARN MORE"
+        },
+        {
+          "type": "select",
+          "id": "bubble_position",
+          "label": "Preferred bubble position",
+          "options": [
+            { "value": "right", "label": "Right" },
+            { "value": "left", "label": "Left" },
+            { "value": "top", "label": "Above" },
+            { "value": "bottom", "label": "Below" }
+          ],
+          "default": "right",
+          "info": "Bubble will automatically adjust if there's not enough space"
+        }
+      ]
+    },
+    {
+      "type": "parts_hotspot",
+      "name": "Parts/Accessories",
+      "settings": [
+        {
+          "type": "range",
+          "id": "position_x",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "position_y",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "text",
+          "id": "part_number",
+          "label": "Part number (display)",
+          "info": "Leave blank to auto-number"
+        },
+        {
+          "type": "text",
+          "id": "part_name",
+          "label": "Part name",
+          "default": "COMPONENT NAME"
+        },
+        {
+          "type": "text",
+          "id": "part_sku",
+          "label": "Part SKU"
+        },
+        {
+          "type": "textarea",
+          "id": "part_description",
+          "label": "Part description"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Linked product (optional)"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link (if no product)"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "VIEW DETAILS"
+        },
+        {
+          "type": "select",
+          "id": "card_position",
+          "label": "Preferred card position",
+          "options": [
+            { "value": "bottom", "label": "Below" },
+            { "value": "top", "label": "Above" },
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "right",
+          "info": "Card will automatically adjust if there's not enough space"
+        }
+      ]
+    },
+    {
+      "type": "information_pointer",
+      "name": "Information Pointer",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Click to display an information text box. Uses blue color for technical information."
+        },
+        {
+          "type": "range",
+          "id": "position_x",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "position_y",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "SAFETY NOTICE"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>Important safety or operational information about this component.</p>"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "LEARN MORE"
+        },
+        {
+          "type": "select",
+          "id": "card_position",
+          "label": "Preferred position",
+          "options": [
+            { "value": "bottom", "label": "Below" },
+            { "value": "top", "label": "Above" },
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "right",
+          "info": "Text box will automatically adjust if there's not enough space"
+        }
+      ]
+    },
+    {
+      "type": "highlight_pointer",
+      "name": "Product Highlight",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Highlight featured products with a compact card. Uses teal color."
+        },
+        {
+          "type": "range",
+          "id": "position_x",
+          "label": "Horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "position_y",
+          "label": "Vertical position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "default": 50,
+          "unit": "%"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "highlight_label",
+          "label": "Highlight label",
+          "default": "FEATURED",
+          "info": "Badge shown at top of card (e.g., 'BEST SELLER', 'NEW', 'FEATURED')"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_quick_add",
+          "label": "Show add to cart button",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Custom Content (if no product)"
+        },
+        {
+          "type": "text",
+          "id": "highlight_title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "highlight_description",
+          "label": "Description"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "LEARN MORE"
+        },
+        {
+          "type": "select",
+          "id": "card_position",
+          "label": "Preferred card position",
+          "options": [
+            { "value": "bottom", "label": "Below" },
+            { "value": "top", "label": "Above" },
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "bottom",
+          "info": "Card will automatically adjust if there's not enough space"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shoppable Image+",
+      "blocks": [
+        { "type": "product_hotspot", "settings": { "position_x": 25, "position_y": 40 } },
+        { "type": "info_hotspot", "settings": { "position_x": 50, "position_y": 30, "title": "KEY FEATURE", "content": "Industrial-grade construction." } },
+        { "type": "parts_hotspot", "settings": { "position_x": 75, "position_y": 60, "part_name": "MAIN ASSEMBLY" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

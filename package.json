@@ -4,6 +4,7 @@
   "description": "A dark, industrial-themed Shopify theme for precision tech e-commerce",
   "author": "Dylan Burkey",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/dylanburkey/machinist-shopify-theme.git"
@@ -14,11 +15,32 @@
     "pull": "shopify theme pull",
     "check": "shopify theme check",
     "package": "shopify theme package",
-    "share": "shopify theme share"
+    "share": "shopify theme share",
+    "lint": "eslint 'assets/**/*.js' 'tools/**/*.js' --max-warnings 0",
+    "lint:fix": "eslint 'assets/**/*.js' 'tools/**/*.js' --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "validate": "pnpm lint && pnpm format:check && pnpm check",
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@shopify/cli": "^3.50.0",
-    "@shopify/theme": "^3.50.0"
+    "@shopify/theme": "^3.50.0",
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-jsdoc": "^50.0.0",
+    "prettier": "^3.2.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"
@@ -30,5 +52,6 @@
     "industrial",
     "dark-theme",
     "machinist"
-  ]
+  ],
+  "packageManager": "pnpm@10.27.0"
 }

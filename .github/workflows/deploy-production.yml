@@ -1,0 +1,196 @@
+# Deploy Development to Production Workflow
+# Merges dev branch into main with validation and approval
+
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_deploy:
+        description: 'Type "DEPLOY" to confirm production deployment'
+        required: true
+        type: string
+      skip_theme_push:
+        description: 'Skip pushing to Shopify theme'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.27.0'
+
+jobs:
+  # Job 1: Validate deployment request
+  validate-deploy:
+    name: Validate Deployment Request
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_deploy }}" != "DEPLOY" ]; then
+            echo "❌ Deployment not confirmed. You must type 'DEPLOY' to proceed."
+            exit 1
+          fi
+          echo "✅ Deployment confirmed"
+
+  # Job 2: Run all CI checks on dev branch
+  pre-deploy-validation:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    needs: validate-deploy
+    
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run Prettier check
+        run: pnpm format:check
+
+      - name: Run Shopify Theme Check
+        run: pnpm check
+
+      - name: Validate JSON files
+        run: |
+          for file in config/*.json locales/*.json; do
+            if [ -f "$file" ]; then
+              python3 -c "import json; json.load(open('$file'))" || exit 1
+            fi
+          done
+
+  # Job 3: Merge dev into main
+  merge-to-main:
+    name: Merge Dev to Main
+    runs-on: ubuntu-latest
+    needs: pre-deploy-validation
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch dev branch
+        run: git fetch origin dev:dev
+
+      - name: Check for merge conflicts
+        run: |
+          echo "🔍 Checking for merge conflicts..."
+          git merge --no-commit --no-ff dev || {
+            echo "❌ Merge conflicts detected. Please resolve manually."
+            git merge --abort
+            exit 1
+          }
+          git merge --abort
+          echo "✅ No merge conflicts"
+
+      - name: Merge dev into main
+        run: |
+          echo "🚀 Merging dev into main..."
+          git merge dev --no-ff -m "chore: merge dev into main for production deployment
+
+          Deployed via GitHub Actions workflow
+          Triggered by: ${{ github.actor }}
+          Run ID: ${{ github.run_id }}"
+          
+      - name: Push to main
+        run: git push origin main
+
+      - name: Create deployment tag
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          TAG_NAME="deploy-${TIMESTAMP}"
+          git tag -a "$TAG_NAME" -m "Production deployment ${TIMESTAMP}"
+          git push origin "$TAG_NAME"
+          echo "Created tag: $TAG_NAME"
+
+  # Job 4: Deploy to Shopify (optional)
+  deploy-to-shopify:
+    name: Push Theme to Shopify
+    runs-on: ubuntu-latest
+    needs: merge-to-main
+    if: ${{ github.event.inputs.skip_theme_push != 'true' }}
+    
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy to Shopify
+        run: pnpm push --allow-live
+        env:
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+
+  # Job 5: Notify completion
+  notify-completion:
+    name: Deployment Complete
+    runs-on: ubuntu-latest
+    needs: [merge-to-main, deploy-to-shopify]
+    if: always()
+    
+    steps:
+      - name: Deployment summary
+        run: |
+          echo "📋 Deployment Summary"
+          echo "====================="
+          echo ""
+          echo "Merge Status: ${{ needs.merge-to-main.result }}"
+          echo "Shopify Deploy Status: ${{ needs.deploy-to-shopify.result }}"
+          echo ""
+          
+          if [ "${{ needs.merge-to-main.result }}" = "success" ]; then
+            echo "✅ Code successfully merged to main"
+          else
+            echo "❌ Merge to main failed"
+          fi
+          
+          if [ "${{ needs.deploy-to-shopify.result }}" = "success" ]; then
+            echo "✅ Theme successfully deployed to Shopify"
+          elif [ "${{ needs.deploy-to-shopify.result }}" = "skipped" ]; then
+            echo "⏭️ Shopify deployment was skipped"
+          else
+            echo "❌ Shopify deployment failed"
+          fi

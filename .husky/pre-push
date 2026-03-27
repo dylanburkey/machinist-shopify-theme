@@ -1,0 +1,6 @@
+echo "Running pre-push checks..."
+
+# Full validation before push
+pnpm validate
+
+echo "All pre-push checks passed! Safe to push."

@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "lastUpdated": "2026-03-27"
+  },
+  "layout": {
+    "layout/theme.liquid": "Root template — loads global assets (constants.js, pubsub.js, global.js), renders header/footer section groups, applies theme font CSS variables"
+  },
+  "sections": {
+    "sections/announcement-bar.liquid": "Announcement bar section (116 lines) — top-of-page promotional message strip",
+    "sections/builder-grid.liquid": "12-column composable page builder (988 lines) — replaces PageFly/Shogun/GemPages; 10 block types: heading, paragraph, image, button, video, spacer, divider, html, liquid, icon_text; flexible column spans (25/33/50/66/75/100%); responsive mobile stacking",
+    "sections/container-grid.liquid": "Bento layout grid (463 lines) — container query-enabled flexible grid; industrial bento-style card layouts",
+    "sections/faq.liquid": "Advanced FAQ section (495 lines) — 3 display modes (accordion, sidebar-left, sidebar-right); real-time search filtering; category filtering via data attributes; expandable/collapsible answers",
+    "sections/featured-collection.liquid": "Featured collection grid (115 lines) — displays products from a selected collection using product-card snippet",
+    "sections/footer.liquid": "Footer section (239 lines) — newsletter signup, navigation links, social icons, copyright",
+    "sections/footer-group.json": "Section group for footer — defines footer section slots",
+    "sections/header.liquid": "Navigation and cart icon (233 lines) — top navigation, search, header-cart web component",
+    "sections/header-group.json": "Section group for header — defines header section slots",
+    "sections/hero.liquid": "Hero banner section (208 lines) — full-width hero image with headline and CTA button",
+    "sections/main-404.liquid": "404 error page template (58 lines)",
+    "sections/main-account.liquid": "Account page section (128 lines) — customer login/register",
+    "sections/main-cart.liquid": "Cart page section (299 lines) — cart line items, quantity inputs, checkout button",
+    "sections/main-collection.liquid": "Collection listing section (245 lines) — product grid with filtering",
+    "sections/main-list-collections.liquid": "All collections listing (111 lines)",
+    "sections/main-login.liquid": "Login form section (116 lines)",
+    "sections/main-page.liquid": "Generic page template section (80 lines) — renders page.content",
+    "sections/main-product.liquid": "Product detail page section (344 lines) — gallery, variant-selector, add-to-cart-button, price, description",
+    "sections/main-search.liquid": "Search results section (154 lines)",
+    "sections/preset-trust-badges.liquid": "Trust badges section (371 lines) — animated icon badges (free shipping, secure checkout, etc.); configurable badge count and icons; inline SVG",
+    "sections/shoppable-image-enhanced.liquid": "Enhanced shoppable image section (2342 lines) — 5 hotspot marker types: product_hotspot (orange popup card), info_hotspot (hover text circle, green), parts_hotspot (numbered parts diagram, orange), information_pointer (click text box, blue), product_highlights (small product card, teal); per-section CSS variables for all hotspot colors/sizes; card_position setting (auto, top, bottom, left, right)",
+    "sections/side-menu.liquid": "Documentation sidebar navigation (479 lines) — reading progress indicator; nested menu structure; smooth scroll behavior",
+    "sections/smart-grid.liquid": "Container query-enabled featured cards (432 lines) — multiple layout options; industrial card blocks with image, tag, heading, body, CTA button; responsive srcset images",
+    "sections/social-sharing.liquid": "Social share buttons section (430 lines) — share to Twitter/X, Facebook, LinkedIn, Pinterest; copy-link functionality; inline SVG icons"
+  },
+  "snippets": {
+    "snippets/meta-tags.liquid": "SEO meta tags snippet (51 lines) — og: and twitter: card meta tags",
+    "snippets/product-card.liquid": "Product grid card component (98 lines) — grayscale image hover effect, badge support, price display",
+    "snippets/product-card-placeholder.liquid": "Placeholder card for empty collections (28 lines)"
+  },
+  "assets": {
+    "assets/global.js": "All custom element definitions (306 lines) — 7 web components: QuantityInput, AccordionSection, ProductGallery, AddToCartButton, CartDrawer, HeaderCart, VariantSelector",
+    "assets/pubsub.js": "Simple pub/sub event system (25 lines) — subscribe/publish/unsubscribe helpers",
+    "assets/constants.js": "Shared constants and event names (10 lines)",
+    "assets/base.css": "Global styles and CSS custom properties (549 lines) — reset, typography, layout primitives, component utilities, responsive helpers",
+    "assets/component-card.css": "Product card component styles (178 lines) — card layout, hover states, badge styles"
+  },
+  "templates": {
+    "templates/index.json": "Homepage template — section composition",
+    "templates/product.json": "Product page template",
+    "templates/collection.json": "Collection page template",
+    "templates/cart.json": "Cart page template",
+    "templates/page.json": "Generic page template",
+    "templates/search.json": "Search results template",
+    "templates/404.json": "404 page template",
+    "templates/list-collections.json": "All collections template",
+    "templates/customers/": "Customer account templates (login, account, order, addresses, activate, reset)"
+  },
+  "config": {
+    "config/settings_schema.json": "Theme-wide settings for Shopify admin (currently empty [] — schema not yet built out)"
+  },
+  "tooling": {
+    "package.json": "Node.js project manifest — pnpm@10.27.0, ESM module type, dev scripts, lint-staged config",
+    "eslint.config.js": "ESLint flat config (ESM) — strict rules with JSDoc plugin",
+    ".prettierrc": "Prettier config — single quotes, semicolons, 100 char width",
+    ".prettierignore": "Prettier ignore patterns",
+    ".husky/pre-commit": "Runs lint-staged on commit",
+    ".husky/pre-push": "Runs pnpm validate before push",
+    ".github/workflows/ci.yml": "CI pipeline — ESLint, Prettier, theme check, JSON validation on push/PR",
+    ".github/workflows/deploy-production.yml": "Manual production deployment workflow",
+    ".github/workflows/merge-dev-to-main.yml": "Automated dev-to-main merge workflow",
+    "docs/CI-CD.md": "CI/CD pipeline documentation"
+  },
+  "claude": {
+    ".claude/commands/plan.md": "AI /plan command",
+    ".claude/commands/run.md": "AI /run command",
+    ".claude/commands/status.md": "AI /status command",
+    ".claude/commands/task.md": "AI /task command",
+    ".claude/PROJECT_STARTER.md": "Project starter documentation for AI agents",
+    ".claude/agents.yml": "AI agent configuration",
+    ".claude/config.yml": "Claude Code configuration",
+    ".claude/hooks/": "Claude Code hook scripts",
+    ".claude/tasks/": "AI task tracking"
+  }
+}

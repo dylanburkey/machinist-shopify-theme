@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "project": "machinist-shopify-theme",
+    "lastUpdated": "2026-03-27",
+    "version": "1.0.0"
+  },
+  "overview": {
+    "type": "Shopify 2.0 Theme",
+    "aesthetic": "Dark industrial / precision tech e-commerce",
+    "colors": {
+      "bg": "#0a0a0a",
+      "panel": "#141414",
+      "border": "#333333",
+      "textMain": "#e5e5e5",
+      "textDim": "#888888",
+      "accent": "#ff4d00"
+    },
+    "fonts": {
+      "heading": "Teko (uppercase, wide letter-spacing)",
+      "body": "Inter (300-600 weights)",
+      "mono": "Source Code Pro (technical labels, prices)"
+    }
+  },
+  "structure": {
+    "layout/": "Base theme structure — theme.liquid is root template",
+    "sections/": "Reusable configurable components for theme editor (.liquid = renderable, .json = section groups)",
+    "snippets/": "Smaller reusable Liquid components (not directly theme-editor configurable)",
+    "templates/": "Page-level templates composing sections together",
+    "config/settings_schema.json": "Theme-wide settings for Shopify admin (currently empty array [])",
+    "assets/": "CSS, JavaScript, and static files",
+    "tools/catalog-generator/": "Node.js scripts for generating product catalog demo data",
+    ".claude/": "AI agent commands, hooks, and project management tooling"
+  },
+  "javascript": {
+    "pattern": "Vanilla Web Components (HTMLElement subclasses) — no framework dependencies",
+    "coreFiles": [
+      "assets/global.js — all custom element definitions (306 lines)",
+      "assets/pubsub.js — simple pub/sub system for component communication (25 lines)",
+      "assets/constants.js — shared constants and event names (10 lines)"
+    ],
+    "customElements": [
+      "quantity-input — increment/decrement quantity selector",
+      "accordion-section — collapsible content panels",
+      "product-gallery — image gallery with thumbnail navigation",
+      "add-to-cart-button — cart addition with loading/success/error states",
+      "cart-drawer — slide-out cart panel with Shopify section refresh",
+      "header-cart — cart count badge in header",
+      "variant-selector — product variant selection and price updates"
+    ],
+    "eventSystem": {
+      "pattern": "Native DOM CustomEvents via document.addEventListener()",
+      "events": {
+        "cart:updated": "Fired on add-to-cart success; triggers cart-drawer refresh and header-cart count update"
+      }
+    },
+    "cartOperations": {
+      "addToCart": "POST to window.routes.cart_add_url",
+      "cartData": "GET from window.routes.cart_url + '.js'",
+      "drawerRefresh": "GET window.routes.cart_url + '?section_id=cart-drawer' (Shopify section rendering API)"
+    }
+  },
+  "css": {
+    "mainFile": "assets/base.css (549 lines) — global styles, CSS custom properties, typography, layout primitives",
+    "componentFile": "assets/component-card.css (178 lines) — product card styles",
+    "cssVariables": {
+      "--c-bg": "#0a0a0a",
+      "--c-panel": "#141414",
+      "--c-border": "#333333",
+      "--c-text-main": "#e5e5e5",
+      "--c-text-dim": "#888888",
+      "--c-accent": "#ff4d00",
+      "--pad": "1.5rem",
+      "--grid-gap": "2px",
+      "--page-width": "140rem"
+    },
+    "breakpoints": {
+      "mobile": "≤ 600px",
+      "tablet": "601px - 1024px",
+      "desktop": "> 1024px"
+    }
+  },
+  "designPatterns": {
+    "buttons": "Orange border with transparent bg; flip to solid orange on hover — instant transition (no easing, 'mechanical' feel)",
+    "badges": "Small uppercase labels for product status (RESTOCKED, NEW, etc.)",
+    "grid": "Visible grid lines (border: var(--grid-gap) solid var(--c-border)) — blueprint/schematic aesthetic",
+    "images": "filter: grayscale(1) default; color revealed on hover (:hover { filter: none })",
+    "sectionScoping": "Per-section CSS variables via {%- style -%} #shopify-section-{{ section.id }} { ... } pattern",
+    "containerQueries": "Used in smart-grid.liquid and container-grid.liquid for responsive layout without media queries"
+  },
+  "cicd": {
+    "preCommit": "Husky + lint-staged: ESLint --fix + Prettier --write on staged .js/.json/.css/.md files",
+    "prePush": "pnpm validate (lint + format:check + shopify theme check) — rejects push on failure",
+    "githubActions": {
+      "ci.yml": "Runs on push/PR to main, dev, development — validates ESLint, Prettier, theme check, JSON validity",
+      "deploy-production.yml": "Manual workflow_dispatch — merges dev into main, creates deployment tag, optional Shopify push (requires typing DEPLOY to confirm)",
+      "merge-dev-to-main.yml": "Automated merge workflow"
+    }
+  },
+  "linting": {
+    "eslint": {
+      "config": "eslint.config.js (flat config, ESM)",
+      "rules": [
+        "JSDoc required on all function declarations, methods, class declarations (@param types, @returns type)",
+        "const over let, no var",
+        "Strict equality (===) always",
+        "No console.log — only console.warn and console.error",
+        "Arrow callbacks preferred",
+        "Curly braces required on all control flow",
+        "Unused vars with _ prefix allowed"
+      ],
+      "globals": "Shopify, theme browser globals pre-declared"
+    },
+    "prettier": {
+      "config": ".prettierrc",
+      "rules": "Single quotes, semicolons, 2-space indent, 100 char print width, trailing commas (es5), CSS files use double quotes"
+    }
+  }
+}

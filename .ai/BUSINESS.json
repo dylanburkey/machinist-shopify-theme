@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "lastUpdated": "2026-03-27"
+  },
+  "product": {
+    "name": "Machinist",
+    "type": "Shopify 2.0 Theme",
+    "target": "Precision tech e-commerce / industrial tools / machining equipment",
+    "aesthetic": "Dark industrial — safety orange on deep black, grid lines, grayscale-to-color image reveals",
+    "version": "1.0.0",
+    "author": "Dylan Burkey",
+    "license": "MIT",
+    "repo": "https://github.com/dylanburkey/machinist-shopify-theme"
+  },
+  "features": {
+    "core": {
+      "status": "complete",
+      "items": [
+        "Header with navigation and live cart count badge",
+        "Cart drawer with Shopify section rendering API refresh",
+        "Product detail page with variant selector and price updates",
+        "Product collection grid with product-card snippet",
+        "Hero banner section with CTA",
+        "Announcement bar",
+        "Footer with newsletter, navigation, social links",
+        "Account/login/cart/search page templates",
+        "CSS design system (base.css + component-card.css)"
+      ]
+    },
+    "sections_library": {
+      "status": "complete",
+      "items": [
+        "shoppable-image-enhanced — 5 hotspot marker types, interactive product discovery",
+        "builder-grid — 12-column page builder replacing PageFly/Shogun (10 block types)",
+        "smart-grid — container query featured cards with multiple layouts",
+        "container-grid — bento layout with container queries",
+        "faq — advanced FAQ with faceted search + category filtering (3 display modes)",
+        "preset-trust-badges — animated trust badge icons",
+        "side-menu — documentation sidebar with reading progress indicator",
+        "social-sharing — share buttons + copy-link (Twitter/X, Facebook, LinkedIn, Pinterest)"
+      ]
+    },
+    "javascript_components": {
+      "status": "complete",
+      "items": [
+        "quantity-input web component",
+        "accordion-section web component",
+        "product-gallery with thumbnail navigation",
+        "add-to-cart-button with loading/success/error states",
+        "cart-drawer slide-out panel",
+        "header-cart count badge",
+        "variant-selector with URL and price updates"
+      ]
+    },
+    "tooling_cicd": {
+      "status": "complete",
+      "items": [
+        "ESLint (flat config) with JSDoc enforcement, zero warnings policy",
+        "Prettier formatting (JS/JSON/CSS/MD)",
+        "Husky pre-commit hook (lint-staged on staged files only)",
+        "Husky pre-push hook (full pnpm validate)",
+        "GitHub Actions CI workflow (ci.yml)",
+        "GitHub Actions production deploy workflow (manual, requires DEPLOY confirmation)",
+        "GitHub Actions merge-dev-to-main workflow"
+      ]
+    },
+    "planned": {
+      "status": "planned",
+      "items": [
+        "config/settings_schema.json — theme settings (currently empty [])",
+        "Localization strings (locales/)",
+        "Additional section variants",
+        "Performance optimization (lazy loading audit)",
+        "Accessibility audit (ARIA improvements)"
+      ]
+    }
+  },
+  "userFlows": {
+    "shopping": {
+      "browse": "Homepage hero → featured-collection → product-card → main-product",
+      "addToCart": "variant-selector changes → updatePrice → add-to-cart-button click → POST cart_add → cart:updated event → cart-drawer opens + header-cart updates",
+      "checkout": "cart-drawer or main-cart → Shopify checkout"
+    },
+    "discovery": {
+      "collection": "main-collection grid → product-card → main-product",
+      "search": "header search icon → main-search results → product-card → main-product",
+      "shoppable": "shoppable-image-enhanced hotspot click → product card popup → product link"
+    }
+  },
+  "themeEditorCapabilities": {
+    "sections": "All .liquid sections in sections/ are available in theme editor",
+    "customization": "Per-section settings via {% schema %} blocks; colors, fonts, sizes configurable",
+    "blocks": "builder-grid, smart-grid, container-grid, faq, shoppable-image-enhanced all support blocks for dynamic content",
+    "sectionGroups": "header-group.json, footer-group.json enable multi-section header/footer"
+  },
+  "performance": {
+    "images": "lazy loading on all images, srcset responsive images in smart-grid",
+    "js": "defer loading for all scripts, no framework overhead",
+    "css": "No external CSS frameworks; custom properties for runtime theming"
+  }
+}

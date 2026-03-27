@@ -11,7 +11,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Start development server with live preview
 pnpm dev
-# Equivalent to: shopify theme dev
 
 # Push theme changes to Shopify store
 pnpm push
@@ -19,8 +18,19 @@ pnpm push
 # Pull latest theme from Shopify store
 pnpm pull
 
-# Run theme linter/validator
+# Run Shopify theme linter/validator
 pnpm check
+
+# Lint JavaScript (ESLint, zero warnings allowed)
+pnpm lint
+pnpm lint:fix
+
+# Format code (Prettier)
+pnpm format          # write fixes
+pnpm format:check    # check only
+
+# Full validation (lint + format:check + theme check) — also runs on pre-push
+pnpm validate
 
 # Package theme for distribution
 pnpm package
@@ -29,31 +39,57 @@ pnpm package
 pnpm share
 ```
 
-**Prerequisites**: Node.js 18+, PNPM package manager, Shopify CLI
+**Prerequisites**: Node.js 18+, PNPM (10.27.0), Shopify CLI
+
+## Git Hooks & CI
+
+**Pre-commit** (Husky + lint-staged): Auto-runs ESLint --fix and Prettier --write on staged `.js`, `.json`, `.css`, and `.md` files.
+
+**Pre-push**: Runs full `pnpm validate` (lint + format:check + theme check). Push is rejected if any check fails.
+
+**CI** (`.github/workflows/ci.yml`): Runs on pushes/PRs to `main`, `dev`, `development`. Validates ESLint, Prettier, Shopify theme check, and JSON validity for `config/` and `locales/` files.
+
+**Production Deploy** (`.github/workflows/deploy-production.yml`): Manual workflow_dispatch that merges `dev` into `main`, creates a deployment tag, and optionally pushes to Shopify. Requires typing "DEPLOY" to confirm.
+
+## JavaScript Coding Conventions
+
+ESLint is configured with strict rules (see `eslint.config.js`). Key requirements:
+
+- **JSDoc required** on all function declarations, method definitions, and class declarations (with `@param` types, `@returns` type)
+- **`const` over `let`**, no `var`
+- **Strict equality** (`===`) always
+- **No `console.log`** — only `console.warn` and `console.error` allowed
+- **Arrow callbacks** preferred (`prefer-arrow-callback`)
+- **Curly braces required** on all control flow (even single-line)
+- Unused vars with `_` prefix are allowed (`argsIgnorePattern: '^_'`)
+- Shopify globals (`Shopify`, `theme`) and browser globals are pre-declared
+
+**Prettier**: Single quotes, semicolons, 2-space indent, 100 char print width, trailing commas (es5). CSS files use double quotes.
 
 ## Architecture Overview
 
 ### Shopify Theme Structure
 
-This follows standard Shopify 2.0 theme architecture:
+Standard Shopify 2.0 theme architecture:
 
-- **`layout/`**: Base theme structure ([theme.liquid](layout/theme.liquid) is the root template)
-- **`sections/`**: Reusable, configurable components that can be added via theme editor
-  - Section files ending in `.json` are section groups (e.g., `header-group.json`, `footer-group.json`)
-  - Section files ending in `.liquid` are renderable sections
+- **`layout/`**: Base theme structure (`theme.liquid` is the root template)
+- **`sections/`**: Reusable, configurable components for the theme editor
+  - `.json` files are section groups (e.g., `header-group.json`, `footer-group.json`)
+  - `.liquid` files are renderable sections
 - **`snippets/`**: Smaller reusable Liquid components (not directly configurable in theme editor)
 - **`templates/`**: Page-level templates that compose sections together
 - **`config/settings_schema.json`**: Theme-wide settings available in the Shopify admin
 - **`assets/`**: CSS, JavaScript, and static files
+- **`tools/catalog-generator/`**: Node.js scripts for generating product catalog data
 
 ### JavaScript Architecture
 
 The theme uses **vanilla Web Components** for all interactive functionality. No framework dependencies.
 
 **Core files**:
-- [assets/global.js](assets/global.js): All custom element definitions
-- [assets/pubsub.js](assets/pubsub.js): Simple pub/sub system for component communication
-- [assets/constants.js](assets/constants.js): Shared constants and event names
+- `assets/global.js`: All custom element definitions
+- `assets/pubsub.js`: Simple pub/sub system for component communication
+- `assets/constants.js`: Shared constants and event names
 
 **Custom Elements**:
 - `<quantity-input>`: Increment/decrement quantity selector
@@ -71,8 +107,8 @@ The theme uses native DOM events for component communication:
 
 ### CSS Architecture
 
-- **[assets/base.css](assets/base.css)**: Global styles, CSS custom properties, typography, layout primitives
-- **[assets/component-card.css](assets/component-card.css)**: Product card styles
+- **`assets/base.css`**: Global styles, CSS custom properties, typography, layout primitives
+- **`assets/component-card.css`**: Product card styles
 
 **CSS Custom Properties** (defined in `base.css`):
 ```css
@@ -127,11 +163,11 @@ Product images use `filter: grayscale(1)` by default, revealing color on hover (
 
 ## Important Files
 
-- [layout/theme.liquid](layout/theme.liquid): Root template, loads global assets
-- [sections/header.liquid](sections/header.liquid): Navigation and cart icon
-- [sections/main-product.liquid](sections/main-product.liquid): Product detail page
-- [snippets/product-card.liquid](snippets/product-card.liquid): Product grid card component
-- [config/settings_schema.json](config/settings_schema.json): Theme settings structure
+- `layout/theme.liquid`: Root template, loads global assets
+- `sections/header.liquid`: Navigation and cart icon
+- `sections/main-product.liquid`: Product detail page
+- `snippets/product-card.liquid`: Product grid card component
+- `config/settings_schema.json`: Theme settings structure
 
 ## Design System Guidelines
 
@@ -142,7 +178,7 @@ Product images use `filter: grayscale(1)` by default, revealing color on hover (
 **Grid System**: Visible grid lines (`border: var(--grid-gap) solid var(--c-border)`) create blueprint/schematic aesthetic
 
 **Responsive Breakpoints**:
-- Mobile: ≤ 600px
+- Mobile: <= 600px
 - Tablet: 601px - 1024px
 - Desktop: > 1024px
 
@@ -154,12 +190,13 @@ Product images use `filter: grayscale(1)` by default, revealing color on hover (
 3. Section becomes available in theme editor
 
 **Adding a new custom element**:
-1. Define class extending `HTMLElement` in [assets/global.js](assets/global.js)
+1. Define class extending `HTMLElement` in `assets/global.js`
 2. Register with `customElements.define('element-name', ClassName)`
-3. Use `<element-name>` in Liquid templates
+3. Add JSDoc comments on the class and all methods (required by ESLint)
+4. Use `<element-name>` in Liquid templates
 
 **Modifying theme colors**:
-Edit CSS custom properties in [assets/base.css](assets/base.css) or update [config/settings_schema.json](config/settings_schema.json) to make colors configurable in theme editor.
+Edit CSS custom properties in `assets/base.css` or update `config/settings_schema.json` to make colors configurable in theme editor.
 
 ## Theme-Specific Notes
 
